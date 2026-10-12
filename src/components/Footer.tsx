@@ -33,7 +33,6 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
                 { label: 'Specialization Domains', href: '/domains', isRoute: true },
                 { label: 'Upcoming Operations', href: '/events', isRoute: true },
                 { label: 'Core Team & Faculty', href: '/team', isRoute: true },
-                { label: 'Resource Hub & Roadmaps', href: '/#resources', isRoute: false },
                 { label: 'Upstream Hall of Fame', href: '/#contributions', isRoute: false },
               ].map(l => (
                 <li key={l.label}>

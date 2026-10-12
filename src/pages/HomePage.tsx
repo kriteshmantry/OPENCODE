@@ -1,7 +1,6 @@
 import Hero from '../components/Hero'
 import About from '../components/About'
 import Timeline from '../components/Timeline'
-import ResourcesHub from '../components/ResourcesHub'
 import ContributionTracker from '../components/ContributionTracker'
 import { Link } from 'react-router-dom'
 import { motion } from 'framer-motion'
@@ -76,7 +75,6 @@ export default function HomePage({ onJoinClick }: HomePageProps) {
 
       <About />
       <Timeline />
-      <ResourcesHub />
       <ContributionTracker />
     </>
   )

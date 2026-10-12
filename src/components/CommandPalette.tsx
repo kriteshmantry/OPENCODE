@@ -131,16 +131,6 @@ export default function CommandPalette({
       },
     },
     {
-      id: 'nav-resources',
-      title: 'Go to Resource Hub & Writeups',
-      category: 'Navigation',
-      subtitle: 'Roadmaps: Linux internals, Binary Pwn, Web Exploitation',
-      action: () => {
-        onClose()
-        window.location.hash = '#resources'
-      },
-    },
-    {
       id: 'nav-contrib',
       title: 'Go to Open Source Contribution Tracker',
       category: 'Navigation',
@@ -148,16 +138,6 @@ export default function CommandPalette({
       action: () => {
         onClose()
         window.location.hash = '#contributions'
-      },
-    },
-    {
-      id: 'nav-team',
-      title: 'Go to Team & Faculty Advisor',
-      category: 'Navigation',
-      subtitle: 'Core leads, domain mentors, and alumni',
-      action: () => {
-        onClose()
-        window.location.hash = '#team'
       },
     },
   ]
