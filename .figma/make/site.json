@@ -1,0 +1,10 @@
+{
+  "description": "Engage with a vibrant community platform featuring interactive storytelling, project showcases, and events, all designed with a sleek, hacker-inspired interface.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}
