@@ -56,43 +56,20 @@ const item: Variants = {
 
 export default function Events() {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null)
-  const [activeFilter, setActiveFilter] = useState('All')
-
-  const filterTypes = ['All', 'Workshop', 'Hackathon', 'Talk']
-  const filteredEvents = activeFilter === 'All' ? EVENTS : EVENTS.filter(e => e.type === activeFilter)
 
   return (
     <section id="events" className="py-28 px-6 bg-muted/20">
       <div className="max-w-5xl mx-auto">
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
-          <div>
-            <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-4">
-              // NIT ROURKELA WORKSHOPS & HACKATHONS
-            </p>
-            <DecryptText
-              text="Upcoming Operations."
-              tag="h2"
-              className="font-mono text-4xl md:text-5xl font-black text-fg"
-              delay={100}
-            />
-          </div>
-
-          {/* Type filters */}
-          <div className="flex flex-wrap gap-2">
-            {filterTypes.map(f => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`font-mono text-xs px-3 py-1.5 border rounded-sm transition-colors cursor-pointer ${
-                  activeFilter === f
-                    ? 'border-primary/60 bg-primary/15 text-primary'
-                    : 'border-borderc text-muted-fg hover:border-fg/30 hover:text-fg'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+        <div className="mb-12">
+          <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-4">
+            // NIT ROURKELA WORKSHOPS & HACKATHONS
+          </p>
+          <DecryptText
+            text="Upcoming Operations."
+            tag="h2"
+            className="font-mono text-4xl md:text-5xl font-black text-fg"
+            delay={100}
+          />
         </div>
 
         <motion.div
@@ -102,7 +79,7 @@ export default function Events() {
           viewport={{ once: true, amount: 0.15 }}
           className="space-y-4"
         >
-          {filteredEvents.map(ev => (
+          {EVENTS.map(ev => (
             <motion.div
               key={ev.id}
               variants={item}

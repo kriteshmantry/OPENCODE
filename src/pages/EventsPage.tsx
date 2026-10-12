@@ -57,10 +57,6 @@ const item: Variants = {
 
 export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null)
-  const [activeFilter, setActiveFilter] = useState('All')
-
-  const filterTypes = ['All', 'Workshop', 'Hackathon', 'Talk']
-  const filteredEvents = activeFilter === 'All' ? EVENTS : EVENTS.filter(e => e.type === activeFilter)
 
   return (
     <div className="pt-24 pb-28 px-6 min-h-screen bg-bg">
@@ -72,38 +68,19 @@ export default function EventsPage() {
           </Link>
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-borderc pb-10">
-          <div>
-            <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-3">
-              // NIT ROURKELA WORKSHOPS & HACKATHONS
-            </p>
-            <DecryptText
-              text="Upcoming Operations."
-              tag="h1"
-              className="font-mono text-4xl md:text-5xl lg:text-6xl font-black text-fg tracking-tight"
-              delay={80}
-            />
-            <p className="font-mono text-muted-fg text-sm mt-3 max-w-2xl leading-relaxed">
-              Hackathons, kernel workshops, and tech talks organized by the OpenCode collective at NIT Rourkela.
-            </p>
-          </div>
-
-          {/* Type filters */}
-          <div className="flex flex-wrap gap-2">
-            {filterTypes.map(f => (
-              <button
-                key={f}
-                onClick={() => setActiveFilter(f)}
-                className={`font-mono text-xs px-3.5 py-1.5 border rounded-sm transition-colors cursor-pointer ${
-                  activeFilter === f
-                    ? 'border-primary/60 bg-primary/15 text-primary font-bold'
-                    : 'border-borderc text-muted-fg hover:text-fg hover:border-fg/30'
-                }`}
-              >
-                {f}
-              </button>
-            ))}
-          </div>
+        <div className="mb-12 border-b border-borderc pb-10">
+          <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-3">
+            // NIT ROURKELA WORKSHOPS & HACKATHONS
+          </p>
+          <DecryptText
+            text="Upcoming Operations."
+            tag="h1"
+            className="font-mono text-4xl md:text-5xl lg:text-6xl font-black text-fg tracking-tight"
+            delay={80}
+          />
+          <p className="font-mono text-muted-fg text-sm mt-3 max-w-2xl leading-relaxed">
+            Hackathons, kernel workshops, and tech talks organized by the OpenCode collective at NIT Rourkela.
+          </p>
         </div>
 
         {/* Events Grid */}
@@ -113,7 +90,7 @@ export default function EventsPage() {
           animate="show"
           className="grid md:grid-cols-2 gap-6"
         >
-          {filteredEvents.map(event => (
+          {EVENTS.map(event => (
             <motion.div
               key={event.id}
               variants={item}
