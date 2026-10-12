@@ -130,16 +130,6 @@ export default function CommandPalette({
         navigate('/team')
       },
     },
-    {
-      id: 'nav-contrib',
-      title: 'Go to Open Source Contribution Tracker',
-      category: 'Navigation',
-      subtitle: 'Upstream PRs, Hall of Fame, and member stats',
-      action: () => {
-        onClose()
-        window.location.hash = '#contributions'
-      },
-    },
   ]
 
   const filtered = ITEMS.filter(item => {
