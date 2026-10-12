@@ -45,7 +45,7 @@ export default function HomePage({ onJoinClick }: HomePageProps) {
               <h3 className="font-mono text-base font-bold text-fg group-hover:text-primary transition-colors">
                 Events & Workshops &rarr;
               </h3>
-              <p className="text-xs text-muted-fg mt-1">NullCTF 2026, Reverse Engineering 101</p>
+              <p className="text-xs text-muted-fg mt-1">Reverse Engineering 101, OpenHack</p>
             </div>
             <span className="w-8 h-8 rounded border border-borderc group-hover:border-primary/50 group-hover:bg-primary/10 flex items-center justify-center font-mono text-primary text-sm transition-all">
               ⚡

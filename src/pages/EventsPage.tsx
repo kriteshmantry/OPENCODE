@@ -6,17 +6,6 @@ import { Link } from 'react-router-dom'
 
 const EVENTS: EventItem[] = [
   {
-    id: 'e1',
-    type: 'CTF',
-    title: 'NullCTF 2026 (Flagship NITR CTF)',
-    date: 'Oct 15–17, 2026',
-    time: '48 hours continuous',
-    location: 'Online + CS Dept Lab 401, NIT Rourkela',
-    desc: 'Our annual flagship Jeopardy CTF competition. Challenges across Web, Pwn, Crypto, Forensics, and OSINT. Open to all colleges globally.',
-    prize: '₹1,00,000+ Prize Pool + Schwag',
-    badge: 'Registration Open',
-  },
-  {
     id: 'e2',
     type: 'Workshop',
     title: 'Binary Reverse Engineering 101 with Ghidra',
@@ -24,7 +13,7 @@ const EVENTS: EventItem[] = [
     time: '5:30 PM – 8:30 PM',
     location: 'CS Department Auditorium, NIT Rourkela',
     desc: 'Hands-on intro to binary disassembly, analyzing crackmes, understanding x86-64 stack frames, and reversing obfuscated ELF binaries.',
-    prize: 'Certificate of Mastery + CTF Badges',
+    prize: 'Certificate of Mastery + Skill Badges',
     badge: 'Free Entry',
   },
   {
@@ -52,7 +41,6 @@ const EVENTS: EventItem[] = [
 ]
 
 const TYPE_COLORS: Record<string, string> = {
-  CTF: 'text-primary border-primary/30 bg-primary/10',
   Workshop: 'text-accent border-accent/30 bg-accent/10',
   Hackathon: 'text-warning border-warning/30 bg-warning/10',
   Talk: 'text-muted-fg border-borderc bg-muted/30',
@@ -71,7 +59,7 @@ export default function EventsPage() {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null)
   const [activeFilter, setActiveFilter] = useState('All')
 
-  const filterTypes = ['All', 'CTF', 'Workshop', 'Hackathon', 'Talk']
+  const filterTypes = ['All', 'Workshop', 'Hackathon', 'Talk']
   const filteredEvents = activeFilter === 'All' ? EVENTS : EVENTS.filter(e => e.type === activeFilter)
 
   return (
@@ -87,7 +75,7 @@ export default function EventsPage() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12 border-b border-borderc pb-10">
           <div>
             <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-3">
-              // NIT ROURKELA WORKSHOPS & CTFS
+              // NIT ROURKELA WORKSHOPS & HACKATHONS
             </p>
             <DecryptText
               text="Upcoming Operations."
@@ -96,7 +84,7 @@ export default function EventsPage() {
               delay={80}
             />
             <p className="font-mono text-muted-fg text-sm mt-3 max-w-2xl leading-relaxed">
-              Hackathons, CTF tournaments, kernel workshops, and tech talks organized by the OpenCode collective at NIT Rourkela.
+              Hackathons, kernel workshops, and tech talks organized by the OpenCode collective at NIT Rourkela.
             </p>
           </div>
 

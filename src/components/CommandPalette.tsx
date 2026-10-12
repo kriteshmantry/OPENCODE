@@ -114,7 +114,7 @@ export default function CommandPalette({
       id: 'nav-events',
       title: 'Go to Events & Workshops Tab',
       category: 'Navigation',
-      subtitle: 'NullCTF 2026, Reverse Engineering 101, OpenHack',
+      subtitle: 'Reverse Engineering 101, OpenHack, Linux Kernel Talks',
       action: () => {
         onClose()
         navigate('/events')

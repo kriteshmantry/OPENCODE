@@ -5,17 +5,6 @@ import EventRegisterModal, { type EventItem } from './EventRegisterModal'
 
 const EVENTS: EventItem[] = [
   {
-    id: 'e1',
-    type: 'CTF',
-    title: 'NullCTF 2026 (Flagship NITR CTF)',
-    date: 'Oct 15–17, 2026',
-    time: '48 hours continuous',
-    location: 'Online + CS Dept Lab 401, NIT Rourkela',
-    desc: 'Our annual flagship Jeopardy CTF competition. Challenges across Web, Pwn, Crypto, Forensics, and OSINT. Open to all colleges globally.',
-    prize: '₹1,00,000+ Prize Pool + Schwag',
-    badge: 'Registration Open',
-  },
-  {
     id: 'e2',
     type: 'Workshop',
     title: 'Binary Reverse Engineering 101 with Ghidra',
@@ -23,7 +12,7 @@ const EVENTS: EventItem[] = [
     time: '5:30 PM – 8:30 PM',
     location: 'CS Department Auditorium, NIT Rourkela',
     desc: 'Hands-on intro to binary disassembly, analyzing crackmes, understanding x86-64 stack frames, and reversing obfuscated ELF binaries.',
-    prize: 'Certificate of Mastery + CTF Badges',
+    prize: 'Certificate of Mastery + Skill Badges',
     badge: 'Free Entry',
   },
   {
@@ -51,7 +40,6 @@ const EVENTS: EventItem[] = [
 ]
 
 const TYPE_COLORS: Record<string, string> = {
-  CTF: 'text-primary border-primary/30 bg-primary/10',
   Workshop: 'text-accent border-accent/30 bg-accent/10',
   Hackathon: 'text-warning border-warning/30 bg-warning/10',
   Talk: 'text-muted-fg border-borderc bg-muted/30',
@@ -70,7 +58,7 @@ export default function Events() {
   const [selectedEvent, setSelectedEvent] = useState<EventItem | null>(null)
   const [activeFilter, setActiveFilter] = useState('All')
 
-  const filterTypes = ['All', 'CTF', 'Workshop', 'Hackathon', 'Talk']
+  const filterTypes = ['All', 'Workshop', 'Hackathon', 'Talk']
   const filteredEvents = activeFilter === 'All' ? EVENTS : EVENTS.filter(e => e.type === activeFilter)
 
   return (
@@ -79,7 +67,7 @@ export default function Events() {
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6 mb-12">
           <div>
             <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-4">
-              // NIT ROURKELA WORKSHOPS & CTFS
+              // NIT ROURKELA WORKSHOPS & HACKATHONS
             </p>
             <DecryptText
               text="Upcoming Operations."
