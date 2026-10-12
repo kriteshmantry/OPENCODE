@@ -1,14 +1,21 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { Link, useLocation } from 'react-router-dom'
 
-const NAV_LINKS = [
-  { label: 'About', href: '#about' },
-  { label: 'Domains', href: '#domains' },
-  { label: 'CTF Hub', href: '#ctf-hub' },
-  { label: 'Resources', href: '#resources' },
-  { label: 'Open Source', href: '#contributions' },
-  { label: 'Events', href: '#events' },
-  { label: 'Team', href: '#team' },
+interface NavItem {
+  label: string
+  to: string
+  isRoute: boolean
+}
+
+const NAV_LINKS: NavItem[] = [
+  { label: 'Overview', to: '/', isRoute: true },
+  { label: 'Domains', to: '/domains', isRoute: true },
+  { label: 'Events', to: '/events', isRoute: true },
+  { label: 'Team', to: '/team', isRoute: true },
+  { label: 'CTF Hub', to: '/#ctf-hub', isRoute: false },
+  { label: 'Resources', to: '/#resources', isRoute: false },
+  { label: 'Open Source', to: '/#contributions', isRoute: false },
 ]
 
 interface Props {
@@ -21,12 +28,20 @@ interface Props {
 export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch }: Props) {
   const [scrolled, setScrolled] = useState(false)
   const [menuOpen, setMenuOpen] = useState(false)
+  const location = useLocation()
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 40)
     window.addEventListener('scroll', handler, { passive: true })
     return () => window.removeEventListener('scroll', handler)
   }, [])
+
+  const isTabActive = (item: NavItem) => {
+    if (item.isRoute) {
+      return location.pathname === item.to
+    }
+    return location.pathname === '/' && location.hash === item.to.replace('/', '')
+  }
 
   return (
     <header
@@ -38,26 +53,46 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
     >
       <nav className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
         {/* Logo */}
-        <a href="#" className="font-mono font-bold text-primary text-base md:text-lg tracking-tight glow-text flex items-center gap-2">
+        <Link
+          to="/"
+          className="font-mono font-bold text-primary text-base md:text-lg tracking-tight glow-text flex items-center gap-2"
+        >
           <span>&gt;_</span>
           <span>OpenCode <span className="text-muted-fg font-normal text-xs md:text-sm">NITR</span></span>
-        </a>
+        </Link>
 
-        {/* Desktop links */}
-        <ul className="hidden xl:flex items-center gap-6">
-          {NAV_LINKS.map(({ label, href }) => (
-            <li key={label}>
-              <a
-                href={href}
-                className="font-mono text-xs text-muted-fg hover:text-primary transition-colors duration-200 relative group"
-              >
-                <span className="absolute -left-2.5 opacity-0 group-hover:opacity-100 text-primary transition-opacity">
-                  /
-                </span>
-                {label}
-              </a>
-            </li>
-          ))}
+        {/* Desktop tab links */}
+        <ul className="hidden xl:flex items-center gap-2">
+          {NAV_LINKS.map(item => {
+            const active = isTabActive(item)
+            return (
+              <li key={item.label}>
+                {item.isRoute ? (
+                  <Link
+                    to={item.to}
+                    className={`font-mono text-xs px-3 py-1.5 rounded-sm transition-all duration-200 flex items-center gap-1.5 ${
+                      active
+                        ? 'bg-primary/15 text-primary border border-primary/40 font-bold shadow-[0_0_12px_rgba(0,255,65,0.2)]'
+                        : 'text-muted-fg hover:text-fg hover:bg-card/60'
+                    }`}
+                  >
+                    {active && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
+                    <span>{item.label}</span>
+                  </Link>
+                ) : (
+                  <a
+                    href={item.to}
+                    className="font-mono text-xs px-2.5 py-1.5 text-muted-fg hover:text-primary transition-colors flex items-center gap-1 group"
+                  >
+                    <span className="opacity-0 group-hover:opacity-100 text-primary transition-opacity text-[10px]">
+                      /
+                    </span>
+                    <span>{item.label}</span>
+                  </a>
+                )}
+              </li>
+            )
+          })}
         </ul>
 
         {/* Right actions */}
@@ -126,18 +161,33 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
             transition={{ duration: 0.2 }}
             className="xl:hidden bg-bg/98 backdrop-blur-md border-b border-borderc overflow-hidden"
           >
-            <ul className="px-6 py-4 flex flex-col gap-3.5 font-mono text-xs">
-              {NAV_LINKS.map(({ label, href }) => (
-                <li key={label}>
-                  <a
-                    href={href}
-                    className="text-muted-fg hover:text-primary flex items-center gap-2"
-                    onClick={() => setMenuOpen(false)}
-                  >
-                    <span className="text-primary">/</span> {label}
-                  </a>
-                </li>
-              ))}
+            <ul className="px-6 py-4 flex flex-col gap-3 font-mono text-xs">
+              {NAV_LINKS.map(item => {
+                const active = isTabActive(item)
+                return (
+                  <li key={item.label}>
+                    {item.isRoute ? (
+                      <Link
+                        to={item.to}
+                        className={`flex items-center gap-2 py-1 ${
+                          active ? 'text-primary font-bold' : 'text-muted-fg hover:text-fg'
+                        }`}
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span className="text-primary">&gt;</span> {item.label}
+                      </Link>
+                    ) : (
+                      <a
+                        href={item.to}
+                        className="text-muted-fg hover:text-primary flex items-center gap-2 py-1"
+                        onClick={() => setMenuOpen(false)}
+                      >
+                        <span className="text-muted-fg/60">/</span> {item.label}
+                      </a>
+                    )}
+                  </li>
+                )
+              })}
               <li className="pt-2 border-t border-borderc flex items-center justify-between">
                 <button
                   className="text-primary font-bold flex items-center gap-2 cursor-pointer"

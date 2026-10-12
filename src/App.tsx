@@ -1,16 +1,13 @@
 import { useState, useEffect, useCallback, useRef } from 'react'
 import { AnimatePresence } from 'framer-motion'
+import { Routes, Route, useLocation } from 'react-router-dom'
 import Lenis from 'lenis'
 import 'lenis/dist/lenis.css'
 import NavBar from './components/NavBar'
-import Hero from './components/Hero'
-import About from './components/About'
-import Timeline from './components/Timeline'
-import CTFHub from './components/CTFHub'
-import ResourcesHub from './components/ResourcesHub'
-import ContributionTracker from './components/ContributionTracker'
-import Events from './components/Events'
-import Team from './components/Team'
+import HomePage from './pages/HomePage'
+import DomainsPage from './pages/DomainsPage'
+import EventsPage from './pages/EventsPage'
+import TeamPage from './pages/TeamPage'
 import Footer from './components/Footer'
 import TerminalOverlay from './components/TerminalOverlay'
 import JoinModal from './components/JoinModal'
@@ -18,6 +15,24 @@ import CommandPalette from './components/CommandPalette'
 import SecurityPolicyModal from './components/SecurityPolicyModal'
 import SubmitProjectModal from './components/SubmitProjectModal'
 import LoadingScreen from './components/LoadingScreen'
+
+function ScrollToTop({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
+  const { pathname, hash } = useLocation()
+
+  useEffect(() => {
+    if (hash) {
+      const el = document.querySelector(hash)
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' })
+        return
+      }
+    }
+    window.scrollTo(0, 0)
+    lenis.current?.scrollTo(0, { immediate: true })
+  }, [pathname, hash, lenis])
+
+  return null
+}
 
 const KONAMI = [
   'ArrowUp', 'ArrowUp', 'ArrowDown', 'ArrowDown',
@@ -154,6 +169,8 @@ export default function App() {
         {isLoading && <LoadingScreen onComplete={() => setIsLoading(false)} />}
       </AnimatePresence>
 
+      <ScrollToTop lenis={lenisRef} />
+
       <NavBar
         theme={theme}
         onThemeToggle={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
@@ -162,14 +179,12 @@ export default function App() {
       />
 
       <main>
-        <Hero onJoinClick={() => setJoinModalOpen(true)} />
-        <About />
-        <Timeline />
-        <CTFHub />
-        <ResourcesHub />
-        <ContributionTracker />
-        <Events />
-        <Team />
+        <Routes>
+          <Route path="/" element={<HomePage onJoinClick={() => setJoinModalOpen(true)} />} />
+          <Route path="/domains" element={<DomainsPage onJoinClick={() => setJoinModalOpen(true)} />} />
+          <Route path="/events" element={<EventsPage />} />
+          <Route path="/team" element={<TeamPage />} />
+        </Routes>
       </main>
 
       <Footer

@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+import { useNavigate } from 'react-router-dom'
 
 export interface PaletteItem {
   id: string
@@ -32,6 +33,7 @@ export default function CommandPalette({
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
   const inputRef = useRef<HTMLInputElement>(null)
+  const navigate = useNavigate()
 
   const ITEMS: PaletteItem[] = [
     // Actions
@@ -89,33 +91,43 @@ export default function CommandPalette({
 
     // Navigation
     {
-      id: 'nav-about',
-      title: 'Go to About & Dual Domains',
+      id: 'nav-home',
+      title: 'Go to Overview & Home',
       category: 'Navigation',
-      subtitle: 'Open Source & Cybersecurity tracks at NIT Rourkela',
+      subtitle: 'Club story, mission, timeline, and CTF hub',
       action: () => {
         onClose()
-        window.location.hash = '#about'
+        navigate('/')
       },
     },
     {
       id: 'nav-domains',
-      title: 'Go to Core Specializations & Tracks',
+      title: 'Go to Specialization Domains Tab',
       category: 'Navigation',
-      subtitle: 'Cybersecurity and Open Source Systems tracks',
+      subtitle: 'Cybersecurity and Systems & FOSS track roadmaps',
       action: () => {
         onClose()
-        window.location.hash = '#domains'
+        navigate('/domains')
       },
     },
     {
       id: 'nav-events',
-      title: 'Go to Events & Workshops',
+      title: 'Go to Events & Workshops Tab',
       category: 'Navigation',
-      subtitle: 'NullCTF 2026, Reverse Engineering 101, BreakIn Hackathon',
+      subtitle: 'NullCTF 2026, Reverse Engineering 101, OpenHack',
       action: () => {
         onClose()
-        window.location.hash = '#events'
+        navigate('/events')
+      },
+    },
+    {
+      id: 'nav-team',
+      title: 'Go to Core Team & Advisors Tab',
+      category: 'Navigation',
+      subtitle: 'Faculty advisors, student leadership, CTF captains',
+      action: () => {
+        onClose()
+        navigate('/team')
       },
     },
     {

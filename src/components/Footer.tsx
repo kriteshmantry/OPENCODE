@@ -1,4 +1,5 @@
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 
 interface Props {
   onOpenSecurityModal: () => void
@@ -34,21 +35,30 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
             <div className="text-xs text-muted-fg uppercase tracking-widest mb-4">Chapters & Links</div>
             <ul className="space-y-2 text-xs">
               {[
-                { label: 'About Us', href: '#about' },
-                { label: 'Core Tracks & Domains', href: '#domains' },
-                { label: 'CTF & Wargames', href: '#ctf-hub' },
-                { label: 'Resource Hub & Roadmaps', href: '#resources' },
-                { label: 'Upstream Hall of Fame', href: '#contributions' },
-                { label: 'Upcoming Workshops', href: '#events' },
-                { label: 'Core Team & Faculty', href: '#team' },
+                { label: 'About Us', href: '/#about', isRoute: false },
+                { label: 'Specialization Domains', href: '/domains', isRoute: true },
+                { label: 'Upcoming Operations', href: '/events', isRoute: true },
+                { label: 'Core Team & Faculty', href: '/team', isRoute: true },
+                { label: 'CTF & Wargames', href: '/#ctf-hub', isRoute: false },
+                { label: 'Resource Hub & Roadmaps', href: '/#resources', isRoute: false },
+                { label: 'Upstream Hall of Fame', href: '/#contributions', isRoute: false },
               ].map(l => (
                 <li key={l.label}>
-                  <a
-                    href={l.href}
-                    className="text-muted-fg hover:text-primary transition-colors flex items-center gap-1.5"
-                  >
-                    <span className="text-borderc">/</span> {l.label}
-                  </a>
+                  {l.isRoute ? (
+                    <Link
+                      to={l.href}
+                      className="text-muted-fg hover:text-primary transition-colors flex items-center gap-1.5"
+                    >
+                      <span className="text-borderc">/</span> {l.label}
+                    </Link>
+                  ) : (
+                    <a
+                      href={l.href}
+                      className="text-muted-fg hover:text-primary transition-colors flex items-center gap-1.5"
+                    >
+                      <span className="text-borderc">/</span> {l.label}
+                    </a>
+                  )}
                 </li>
               ))}
             </ul>
