@@ -19,15 +19,9 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
             <div className="font-mono font-black text-primary text-xl mb-2 glow-text">
               <span className="text-muted-fg">&gt;_</span>OpenCode <span className="text-muted-fg text-sm font-normal">NIT Rourkela</span>
             </div>
-            <p className="text-xs text-muted-fg leading-relaxed max-w-sm mb-4">
+            <p className="text-xs text-muted-fg leading-relaxed max-w-sm">
               Official Open Source and Cybersecurity Club of National Institute of Technology, Rourkela. Building high-impact systems software and training elite CTF competitors.
             </p>
-            <div className="flex gap-2.5 flex-wrap">
-              <Badge label="NIT Rourkela" color="primary" />
-              <Badge label="MIT License" color="accent" />
-              <Badge label="RFC 9116" color="muted" />
-              <Badge label="FOSS First" color="primary" />
-            </div>
           </div>
 
           {/* Navigation */}
@@ -149,18 +143,6 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
   )
 }
 
-function Badge({ label, color }: { label: string; color: 'primary' | 'accent' | 'muted' }) {
-  const cls =
-    color === 'primary'
-      ? 'text-primary border-primary/30 bg-primary/10'
-      : color === 'accent'
-      ? 'text-accent border-accent/30 bg-accent/10'
-      : 'text-muted-fg border-borderc bg-muted/30'
-
-  return (
-    <span className={`text-[10px] px-2 py-0.5 border rounded-sm ${cls}`}>{label}</span>
-  )
-}
 
 function GithubIcon() {
   return (
