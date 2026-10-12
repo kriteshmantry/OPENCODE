@@ -36,13 +36,17 @@ Acknowledgments: https://opencode.nitrkl.ac.in/#hall-of-fame`
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
+      <div
+        data-lenis-prevent
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md"
+      >
         <motion.div
+          data-lenis-prevent
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="w-full max-w-2xl max-h-[85vh] overflow-y-auto bg-card border border-borderc rounded-sm p-6 md:p-8 relative shadow-2xl font-mono text-xs"
+          className="w-full max-w-2xl max-h-[85vh] overflow-y-auto bg-card border border-borderc rounded-sm p-6 md:p-8 relative shadow-2xl font-mono text-xs overscroll-contain"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-borderc pb-4 mb-6">

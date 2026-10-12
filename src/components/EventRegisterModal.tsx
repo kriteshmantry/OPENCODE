@@ -92,13 +92,17 @@ export default function EventRegisterModal({ event, isOpen, onClose }: Props) {
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div
+        data-lenis-prevent
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      >
         <motion.div
+          data-lenis-prevent
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="w-full max-w-lg bg-card border border-borderc rounded-sm p-6 md:p-8 relative shadow-2xl font-mono"
+          className="w-full max-w-lg bg-card border border-borderc rounded-sm p-6 md:p-8 relative shadow-2xl font-mono overscroll-contain"
         >
           {/* Header */}
           <div className="flex items-center justify-between border-b border-borderc pb-4 mb-6">

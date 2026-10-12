@@ -169,6 +169,8 @@ export default function TerminalOverlay({ onClose }: Props) {
 
           {/* Output */}
           <div
+            data-lenis-prevent
+            onWheel={e => e.stopPropagation()}
             className="h-80 overflow-y-auto p-4 text-sm leading-relaxed"
             onClick={() => inputRef.current?.focus()}
           >

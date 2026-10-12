@@ -142,6 +142,8 @@ export default function CommandPalette({
     )
   })
 
+  const itemRefs = useRef<(HTMLButtonElement | null)[]>([])
+
   useEffect(() => {
     if (isOpen) {
       setQuery('')
@@ -149,6 +151,11 @@ export default function CommandPalette({
       setTimeout(() => inputRef.current?.focus(), 50)
     }
   }, [isOpen])
+
+  // Automatically scroll selected item into view during keyboard navigation
+  useEffect(() => {
+    itemRefs.current[selectedIndex]?.scrollIntoView({ block: 'nearest', behavior: 'smooth' })
+  }, [selectedIndex])
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'ArrowDown') {
@@ -172,8 +179,15 @@ export default function CommandPalette({
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/75 backdrop-blur-md">
+      <div
+        data-lenis-prevent
+        onClick={e => {
+          if (e.target === e.currentTarget) onClose()
+        }}
+        className="fixed inset-0 z-50 flex items-start justify-center pt-20 px-4 bg-black/75 backdrop-blur-md"
+      >
         <motion.div
+          data-lenis-prevent
           initial={{ opacity: 0, scale: 0.96, y: -10 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.96, y: -10 }}
@@ -201,7 +215,12 @@ export default function CommandPalette({
           </div>
 
           {/* Results List */}
-          <div className="max-h-[380px] overflow-y-auto p-2 divide-y divide-borderc/40">
+          <div
+            data-lenis-prevent
+            onWheel={e => e.stopPropagation()}
+            className="max-h-[380px] overflow-y-auto p-2 divide-y divide-borderc/40 overscroll-contain"
+            style={{ scrollbarWidth: 'thin' }}
+          >
             {filtered.length === 0 ? (
               <div className="py-12 text-center text-muted-fg text-xs">
                 No matching commands or resources found for &quot;{query}&quot;
@@ -212,8 +231,13 @@ export default function CommandPalette({
                 return (
                   <button
                     key={item.id}
+                    ref={el => {
+                      itemRefs.current[index] = el
+                    }}
                     onClick={() => item.action()}
-                    onMouseEnter={() => setSelectedIndex(index)}
+                    onMouseMove={() => {
+                      if (selectedIndex !== index) setSelectedIndex(index)
+                    }}
                     className={`w-full text-left px-3.5 py-2.5 rounded-sm flex items-center justify-between transition-colors cursor-pointer ${
                       isSelected
                         ? 'bg-primary/15 text-primary border border-primary/40'

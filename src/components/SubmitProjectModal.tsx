@@ -79,13 +79,17 @@ export default function SubmitProjectModal({ isOpen, onClose, onProjectAdded }: 
 
   return (
     <AnimatePresence>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
+      <div
+        data-lenis-prevent
+        className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md"
+      >
         <motion.div
+          data-lenis-prevent
           initial={{ opacity: 0, scale: 0.95, y: 15 }}
           animate={{ opacity: 1, scale: 1, y: 0 }}
           exit={{ opacity: 0, scale: 0.95, y: 15 }}
           transition={{ duration: 0.2 }}
-          className="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-card border border-borderc rounded-sm p-6 md:p-8 relative shadow-2xl"
+          className="w-full max-w-xl max-h-[90vh] overflow-y-auto bg-card border border-borderc rounded-sm p-6 md:p-8 relative shadow-2xl overscroll-contain"
           style={{ fontFamily: 'var(--font-mono, monospace)' }}
         >
           {/* Header */}
