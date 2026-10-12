@@ -131,16 +131,6 @@ export default function CommandPalette({
       },
     },
     {
-      id: 'nav-ctf',
-      title: 'Go to CTF & Wargame Hub',
-      category: 'Navigation',
-      subtitle: 'Leaderboard, challenge categories, and CTFd',
-      action: () => {
-        onClose()
-        window.location.hash = '#ctf-hub'
-      },
-    },
-    {
       id: 'nav-resources',
       title: 'Go to Resource Hub & Writeups',
       category: 'Navigation',

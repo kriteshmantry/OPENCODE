@@ -13,7 +13,6 @@ const NAV_LINKS: NavItem[] = [
   { label: 'Domains', to: '/domains', isRoute: true },
   { label: 'Events', to: '/events', isRoute: true },
   { label: 'Team', to: '/team', isRoute: true },
-  { label: 'CTF Hub', to: '/#ctf-hub', isRoute: false },
   { label: 'Resources', to: '/#resources', isRoute: false },
   { label: 'Open Source', to: '/#contributions', isRoute: false },
 ]

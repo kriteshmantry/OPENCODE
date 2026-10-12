@@ -1,7 +1,6 @@
 import Hero from '../components/Hero'
 import About from '../components/About'
 import Timeline from '../components/Timeline'
-import CTFHub from '../components/CTFHub'
 import ResourcesHub from '../components/ResourcesHub'
 import ContributionTracker from '../components/ContributionTracker'
 import { Link } from 'react-router-dom'
@@ -77,7 +76,6 @@ export default function HomePage({ onJoinClick }: HomePageProps) {
 
       <About />
       <Timeline />
-      <CTFHub />
       <ResourcesHub />
       <ContributionTracker />
     </>
