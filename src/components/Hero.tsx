@@ -1,13 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion } from 'framer-motion'
+import { Link } from 'react-router-dom'
 import { TextReveal } from './ui/cascade-text'
 import { ShinyButton } from './ui/shiny-button'
 
 interface HeroProps {
   onJoinClick?: () => void
+  theme?: 'green' | 'blue'
 }
 
-export default function Hero({ onJoinClick }: HeroProps) {
+export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [showContent, setShowContent] = useState(false)
   const [titleText, setTitleText] = useState('')
@@ -105,7 +107,10 @@ export default function Hero({ onJoinClick }: HeroProps) {
     function initNodes() {
       const count = Math.min(Math.floor((width * height) / 12000), 70)
       nodes = []
-      const colors = ['#00ff41', '#00d4ff', '#39ff14', '#00ffaa']
+      const colors =
+        theme === 'blue'
+          ? ['#1C6DFD', '#38bdf8', '#60a5fa', '#00d4ff', '#93c5fd']
+          : ['#00ff41', '#00d4ff', '#39ff14', '#00ffaa']
       for (let i = 0; i < count; i++) {
         nodes.push({
           x: Math.random() * width,
@@ -239,7 +244,7 @@ export default function Hero({ onJoinClick }: HeroProps) {
               as="span"
               text="Open Source & Cybersecurity Club."
               fontSize="1.15rem"
-              hoverColor="#00ff41"
+              hoverColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
               className="normal-case font-mono font-medium"
               staggerDelay={20}
               duration={260}
@@ -261,14 +266,18 @@ export default function Hero({ onJoinClick }: HeroProps) {
             <ShinyButton
               label="JOIN OPENCODE"
               onClick={onJoinClick}
-              accentColor="#00ff41"
-              accentSoftColor="#80ff9f"
-              fillColor="#041207"
-              labelColor="#00ff41"
+              accentColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
+              accentSoftColor={theme === 'blue' ? '#93c5fd' : '#80ff9f'}
+              fillColor={theme === 'blue' ? '#051026' : '#041207'}
+              labelColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
               cornerRadius={24}
               sweepDuration={2.6}
               arcWidth={7}
-              className="!py-3 !px-8 font-mono text-sm font-bold shadow-[0_0_20px_rgba(0,255,65,0.22)] hover:shadow-[0_0_35px_rgba(0,255,65,0.45)] transition-shadow cursor-pointer select-none"
+              className={`!py-3 !px-8 font-mono text-sm font-bold transition-shadow cursor-pointer select-none ${
+                theme === 'blue'
+                  ? 'shadow-[0_0_20px_rgba(28,109,253,0.3)] hover:shadow-[0_0_35px_rgba(28,109,253,0.55)]'
+                  : 'shadow-[0_0_20px_rgba(0,255,65,0.22)] hover:shadow-[0_0_35px_rgba(0,255,65,0.45)]'
+              }`}
             />
 
             {/* Secondary Buttons Row */}
@@ -277,21 +286,21 @@ export default function Hero({ onJoinClick }: HeroProps) {
                 href="#domains"
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.96 }}
-                className="px-7 py-3.5 font-mono text-sm border border-accent/60 text-accent hover:border-accent hover:bg-accent/15 transition-colors rounded-sm font-bold"
+                className="px-7 py-3.5 font-mono text-sm border border-primary/50 text-primary bg-primary/10 hover:bg-primary/20 hover:border-primary transition-all rounded-sm font-bold shadow-[0_0_15px_rgba(0,255,65,0.18)] hover:shadow-[0_0_25px_rgba(0,255,65,0.35)] flex items-center gap-2 cursor-pointer"
               >
-                explore domains
+                <span className="opacity-70">&gt;</span>
+                <span>explore domains</span>
               </motion.a>
-              <motion.a
-                href="https://github.com/nullsec-collective"
-                target="_blank"
-                rel="noopener noreferrer"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="px-6 py-3.5 font-mono text-sm border border-borderc text-muted-fg hover:text-fg hover:border-fg/40 transition-colors rounded-sm flex items-center gap-2"
-              >
-                <GithubIcon />
-                github org ↗
-              </motion.a>
+              <Link to="/github">
+                <motion.div
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.96 }}
+                  className="px-6 py-3.5 font-mono text-sm border border-primary/50 text-primary bg-primary/10 hover:bg-primary/20 hover:border-primary transition-all rounded-sm font-bold shadow-[0_0_15px_rgba(0,255,65,0.18)] hover:shadow-[0_0_25px_rgba(0,255,65,0.35)] flex items-center gap-2 cursor-pointer"
+                >
+                  <GithubIcon />
+                  <span>github org &rarr;</span>
+                </motion.div>
+              </Link>
             </div>
           </div>
         </motion.div>

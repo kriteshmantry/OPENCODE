@@ -104,7 +104,7 @@ export default function About() {
                 </div>
               </div>
               <a
-                href="https://github.com/nullsec-collective"
+                href="https://github.com/OpencodeNIT-R"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="font-mono text-xs px-3 py-1.5 bg-primary/15 text-primary border border-primary/30 rounded-sm hover:bg-primary/25 transition-colors"

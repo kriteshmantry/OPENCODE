@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import DecryptText from './DecryptText'
 import MatrixCodeRain from './ui/matrix-code-rain'
 
@@ -13,41 +13,61 @@ const EVENTS = [
   { year: '2026', title: 'BreakIn Conference', body: 'First annual security conference. 800 attendees, 24 talks, 6 workshops, and one very competitive CTF.' },
 ]
 
-// Mathematical and code operators to emit from the leading point
-const EMITTED_OPERATORS = [
-  { char: '+', tx: -30, ty: -26, rot: -30, delay: '0s', dur: '1.4s', color: '#00ff41', size: '15px' },
-  { char: '*', tx: 28, ty: -30, rot: 45, delay: '0.18s', dur: '1.5s', color: '#ffffff', size: '14px' },
-  { char: '#', tx: -36, ty: 4, rot: -50, delay: '0.34s', dur: '1.6s', color: '#00d4ff', size: '14px' },
-  { char: '$', tx: 34, ty: 10, rot: 25, delay: '0.52s', dur: '1.45s', color: '#00ff41', size: '15px' },
-  { char: '%', tx: -24, ty: 30, rot: 40, delay: '0.68s', dur: '1.7s', color: '#80ffea', size: '13px' },
-  { char: '^', tx: 24, ty: 28, rot: -35, delay: '0.84s', dur: '1.5s', color: '#ffffff', size: '15px' },
-  { char: '&', tx: -16, ty: -36, rot: 20, delay: '0.98s', dur: '1.6s', color: '#00d4ff', size: '13px' },
-  { char: '~', tx: 18, ty: -34, rot: -45, delay: '1.14s', dur: '1.4s', color: '#00ff41', size: '16px' },
-  { char: '=', tx: 38, ty: -12, rot: 15, delay: '1.28s', dur: '1.5s', color: '#80ffea', size: '15px' },
-  { char: '!', tx: -34, ty: -16, rot: -20, delay: '1.42s', dur: '1.6s', color: '#ffffff', size: '15px' },
-  { char: '-', tx: 2, ty: 38, rot: 90, delay: '0.44s', dur: '1.55s', color: '#00ff41', size: '16px' },
-  { char: '+', tx: -2, ty: -40, rot: 45, delay: '1.08s', dur: '1.45s', color: '#00d4ff', size: '15px' },
-]
-
-// Mathematical operator glints placed along the vertical line
-const OPERATOR_GLINTS = [
-  { char: '+', top: '5%', leftOffset: -16, color: '#00ff41', delay: '0.2s', duration: '2.3s', size: '16px' },
-  { char: '*', top: '13%', leftOffset: 15, color: '#00d4ff', delay: '1.1s', duration: '2.0s', size: '14px' },
-  { char: '#', top: '21%', leftOffset: -15, color: '#ffffff', delay: '0.6s', duration: '2.5s', size: '15px' },
-  { char: '~', top: '30%', leftOffset: 16, color: '#00ff41', delay: '1.7s', duration: '2.2s', size: '17px' },
-  { char: '%', top: '39%', leftOffset: -18, color: '#80ffea', delay: '0.4s', duration: '2.4s', size: '14px' },
-  { char: '=', top: '48%', leftOffset: 15, color: '#00d4ff', delay: '1.3s', duration: '2.1s', size: '16px' },
-  { char: '^', top: '57%', leftOffset: -16, color: '#00ff41', delay: '0.9s', duration: '2.3s', size: '16px' },
-  { char: '&', top: '66%', leftOffset: 17, color: '#ffffff', delay: '0.1s', duration: '2.2s', size: '14px' },
-  { char: '$', top: '75%', leftOffset: -15, color: '#00ff41', delay: '1.5s', duration: '2.5s', size: '15px' },
-  { char: '!', top: '84%', leftOffset: 14, color: '#00d4ff', delay: '0.8s', duration: '2.0s', size: '16px' },
-  { char: '-', top: '92%', leftOffset: -16, color: '#80ffea', delay: '1.9s', duration: '2.4s', size: '17px' },
-  { char: '+', top: '98%', leftOffset: 15, color: '#00ff41', delay: '0.5s', duration: '2.1s', size: '15px' },
-]
-
 export default function Timeline() {
   const containerRef = useRef<HTMLDivElement>(null)
   const trackRef = useRef<HTMLDivElement>(null)
+  const [activeTheme, setActiveTheme] = useState<'green' | 'blue'>(() => {
+    if (typeof document !== 'undefined') {
+      return document.documentElement.getAttribute('data-theme') === 'blue' ? 'blue' : 'green'
+    }
+    return 'green'
+  })
+
+  useEffect(() => {
+    const handler = () => {
+      const t = document.documentElement.getAttribute('data-theme')
+      setActiveTheme(t === 'blue' ? 'blue' : 'green')
+    }
+    handler()
+    const observer = new MutationObserver(handler)
+    observer.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme', 'class'] })
+    return () => observer.disconnect()
+  }, [])
+
+  const isBlue = activeTheme === 'blue'
+  const primaryColor = isBlue ? '#1C6DFD' : '#00ff41'
+  const accentColor = isBlue ? '#38bdf8' : '#00d4ff'
+  const softColor = isBlue ? '#93c5fd' : '#80ffea'
+
+  const emittedOperators = [
+    { char: '+', tx: -30, ty: -26, rot: -30, delay: '0s', dur: '1.4s', color: primaryColor, size: '15px' },
+    { char: '*', tx: 28, ty: -30, rot: 45, delay: '0.18s', dur: '1.5s', color: '#ffffff', size: '14px' },
+    { char: '#', tx: -36, ty: 4, rot: -50, delay: '0.34s', dur: '1.6s', color: accentColor, size: '14px' },
+    { char: '$', tx: 34, ty: 10, rot: 25, delay: '0.52s', dur: '1.45s', color: primaryColor, size: '15px' },
+    { char: '%', tx: -24, ty: 30, rot: 40, delay: '0.68s', dur: '1.7s', color: softColor, size: '13px' },
+    { char: '^', tx: 24, ty: 28, rot: -35, delay: '0.84s', dur: '1.5s', color: '#ffffff', size: '15px' },
+    { char: '&', tx: -16, ty: -36, rot: 20, delay: '0.98s', dur: '1.6s', color: accentColor, size: '13px' },
+    { char: '~', tx: 18, ty: -34, rot: -45, delay: '1.14s', dur: '1.4s', color: primaryColor, size: '16px' },
+    { char: '=', tx: 38, ty: -12, rot: 15, delay: '1.28s', dur: '1.5s', color: softColor, size: '15px' },
+    { char: '!', tx: -34, ty: -16, rot: -20, delay: '1.42s', dur: '1.6s', color: '#ffffff', size: '15px' },
+    { char: '-', tx: 2, ty: 38, rot: 90, delay: '0.44s', dur: '1.55s', color: primaryColor, size: '16px' },
+    { char: '+', tx: -2, ty: -40, rot: 45, delay: '1.08s', dur: '1.45s', color: accentColor, size: '15px' },
+  ]
+
+  const operatorGlints = [
+    { char: '+', top: '5%', leftOffset: -16, color: primaryColor, delay: '0.2s', duration: '2.3s', size: '16px' },
+    { char: '*', top: '13%', leftOffset: 15, color: accentColor, delay: '1.1s', duration: '2.0s', size: '14px' },
+    { char: '#', top: '21%', leftOffset: -15, color: '#ffffff', delay: '0.6s', duration: '2.5s', size: '15px' },
+    { char: '~', top: '30%', leftOffset: 16, color: primaryColor, delay: '1.7s', duration: '2.2s', size: '17px' },
+    { char: '%', top: '39%', leftOffset: -18, color: softColor, delay: '0.4s', duration: '2.4s', size: '14px' },
+    { char: '=', top: '48%', leftOffset: 15, color: accentColor, delay: '1.3s', duration: '2.1s', size: '16px' },
+    { char: '^', top: '57%', leftOffset: -16, color: primaryColor, delay: '0.9s', duration: '2.3s', size: '16px' },
+    { char: '&', top: '66%', leftOffset: 17, color: '#ffffff', delay: '0.1s', duration: '2.2s', size: '14px' },
+    { char: '$', top: '75%', leftOffset: -15, color: primaryColor, delay: '1.5s', duration: '2.5s', size: '15px' },
+    { char: '!', top: '84%', leftOffset: 14, color: accentColor, delay: '0.8s', duration: '2.0s', size: '16px' },
+    { char: '-', top: '92%', leftOffset: -16, color: softColor, delay: '1.9s', duration: '2.4s', size: '17px' },
+    { char: '+', top: '98%', leftOffset: 15, color: primaryColor, delay: '0.5s', duration: '2.1s', size: '15px' },
+  ]
 
   useEffect(() => {
     let cleanup: (() => void) | undefined
@@ -106,9 +126,11 @@ export default function Timeline() {
               },
               {
                 scale: 1.25,
-                backgroundColor: '#00ff41',
+                backgroundColor: isBlue ? '#1C6DFD' : '#00ff41',
                 borderColor: '#ffffff',
-                boxShadow: '0 0 16px #00ff41, 0 0 32px rgba(0, 255, 65, 0.7)',
+                boxShadow: isBlue
+                  ? '0 0 16px #1C6DFD, 0 0 32px rgba(28, 109, 253, 0.7)'
+                  : '0 0 16px #00ff41, 0 0 32px rgba(0, 255, 65, 0.7)',
                 duration: 0.9,
                 ease: 'back.out(2)',
                 scrollTrigger: {
@@ -193,11 +215,11 @@ export default function Timeline() {
         @keyframes emitter-core-pulse {
           0%, 100% {
             transform: scale(1);
-            box-shadow: 0 0 12px #00ff41, 0 0 25px rgba(0, 255, 65, 0.8), 0 0 40px rgba(0, 212, 255, 0.6);
+            box-shadow: 0 0 12px var(--primary), 0 0 25px rgba(var(--primary-rgb), 0.8), 0 0 40px rgba(var(--primary-rgb), 0.6);
           }
           50% {
             transform: scale(1.2);
-            box-shadow: 0 0 18px #ffffff, 0 0 35px #00ff41, 0 0 55px rgba(0, 255, 65, 0.95);
+            box-shadow: 0 0 18px #ffffff, 0 0 35px var(--primary), 0 0 55px rgba(var(--primary-rgb), 0.95);
           }
         }
 
@@ -216,7 +238,7 @@ export default function Timeline() {
         fontSize={14}
         speed={0.5}
         density={1.2}
-        textColor="#00FF41"
+        textColor={isBlue ? '#1C6DFD' : '#00FF41'}
         className="absolute inset-0 w-full h-full pointer-events-none opacity-60 z-0"
       />
 
@@ -254,15 +276,19 @@ export default function Timeline() {
             className="timeline-sparkle-line absolute left-1/2 -translate-x-1/2 top-0 w-[3px] rounded-full overflow-visible z-10"
             style={{
               height: '0%',
-              background: 'repeating-linear-gradient(to bottom, #00ff41 0%, #ffffff 15%, #00d4ff 30%, #00ff41 50%, #ffffff 65%, #80ffea 85%, #00ff41 100%)',
+              background: isBlue
+                ? 'repeating-linear-gradient(to bottom, #1C6DFD 0%, #ffffff 15%, #38bdf8 30%, #1C6DFD 50%, #ffffff 65%, #93c5fd 85%, #1C6DFD 100%)'
+                : 'repeating-linear-gradient(to bottom, #00ff41 0%, #ffffff 15%, #00d4ff 30%, #00ff41 50%, #ffffff 65%, #80ffea 85%, #00ff41 100%)',
               backgroundSize: '100% 400px',
               animation: 'line-energy-flow 2.2s linear infinite',
-              boxShadow: '0 0 12px rgba(0, 255, 65, 0.8), 0 0 24px rgba(0, 212, 255, 0.6)',
+              boxShadow: isBlue
+                ? '0 0 12px rgba(28, 109, 253, 0.8), 0 0 24px rgba(56, 189, 248, 0.6)'
+                : '0 0 12px rgba(0, 255, 65, 0.8), 0 0 24px rgba(0, 212, 255, 0.6)',
             }}
             aria-hidden="true"
           >
             {/* Mathematical operator glints along the line */}
-            {OPERATOR_GLINTS.map((og, idx) => (
+            {operatorGlints.map((og, idx) => (
               <div
                 key={idx}
                 className="absolute pointer-events-none font-mono font-bold select-none"
@@ -298,7 +324,7 @@ export default function Timeline() {
               <div className="absolute w-12 h-12 rounded-full bg-primary/30 blur-sm pointer-events-none" />
 
               {/* Mathematical operators actively emitting outward from the point */}
-              {EMITTED_OPERATORS.map((op, idx) => (
+              {emittedOperators.map((op, idx) => (
                 <span
                   key={idx}
                   className="absolute font-mono font-extrabold select-none pointer-events-none"

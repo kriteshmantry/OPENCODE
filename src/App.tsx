@@ -15,6 +15,7 @@ import CommandPalette from './components/CommandPalette'
 import SecurityPolicyModal from './components/SecurityPolicyModal'
 import SubmitProjectModal from './components/SubmitProjectModal'
 import LoadingScreen from './components/LoadingScreen'
+import GithubPage from './pages/GithubPage'
 
 function ScrollToTop({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
   const { pathname, hash } = useLocation()
@@ -42,7 +43,13 @@ const KONAMI = [
 
 export default function App() {
   const [isLoading, setIsLoading] = useState(true)
-  const [theme, setTheme] = useState<'dark' | 'light'>('dark')
+  const [theme, setTheme] = useState<'green' | 'blue'>(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('opencode_theme')
+      if (saved === 'blue' || saved === 'green') return saved
+    }
+    return 'green'
+  })
   const [terminalOpen, setTerminalOpen] = useState(false)
   const [joinModalOpen, setJoinModalOpen] = useState(false)
   const [commandPaletteOpen, setCommandPaletteOpen] = useState(false)
@@ -114,8 +121,14 @@ export default function App() {
   }, [isAnyModalOpen])
 
   useEffect(() => {
-    document.documentElement.className = theme === 'light' ? 'light' : ''
+    localStorage.setItem('opencode_theme', theme)
+    document.documentElement.setAttribute('data-theme', theme)
+    document.documentElement.className = theme === 'blue' ? 'theme-blue' : 'theme-green'
   }, [theme])
+
+  const toggleTheme = useCallback(() => {
+    setTheme(t => (t === 'green' ? 'blue' : 'green'))
+  }, [])
 
   // Hidden CTF flag in console
   useEffect(() => {
@@ -173,17 +186,18 @@ export default function App() {
 
       <NavBar
         theme={theme}
-        onThemeToggle={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+        onThemeToggle={toggleTheme}
         onJoinClick={() => setJoinModalOpen(true)}
         onOpenSearch={() => setCommandPaletteOpen(true)}
       />
 
       <main>
         <Routes>
-          <Route path="/" element={<HomePage onJoinClick={() => setJoinModalOpen(true)} />} />
-          <Route path="/domains" element={<DomainsPage onJoinClick={() => setJoinModalOpen(true)} />} />
+          <Route path="/" element={<HomePage onJoinClick={() => setJoinModalOpen(true)} theme={theme} />} />
+          <Route path="/domains" element={<DomainsPage onJoinClick={() => setJoinModalOpen(true)} theme={theme} />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/team" element={<TeamPage />} />
+          <Route path="/github" element={<GithubPage />} />
         </Routes>
       </main>
 
@@ -209,7 +223,8 @@ export default function App() {
         onOpenSubmitProjectModal={() => setSubmitProjectModalOpen(true)}
         onOpenTerminal={() => setTerminalOpen(true)}
         onOpenSecurityModal={() => setSecurityModalOpen(true)}
-        onToggleTheme={() => setTheme(t => (t === 'dark' ? 'light' : 'dark'))}
+        onToggleTheme={toggleTheme}
+        currentTheme={theme}
       />
     </div>
   )

@@ -25,7 +25,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stars: 445,
     lang: 'Python',
     langColor: '#3572A5',
-    url: 'https://github.com/nullsec-collective/vulnscan',
+    url: 'https://github.com/OpencodeNIT-R/vulnscan',
   },
   {
     name: 'BruteForge',
@@ -34,7 +34,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stars: 312,
     lang: 'Rust',
     langColor: '#dea584',
-    url: 'https://github.com/nullsec-collective/bruteforge',
+    url: 'https://github.com/OpencodeNIT-R/bruteforge',
   },
   {
     name: 'MemVault',
@@ -43,7 +43,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stars: 234,
     lang: 'C++',
     langColor: '#f34b7d',
-    url: 'https://github.com/nullsec-collective/memvault',
+    url: 'https://github.com/OpencodeNIT-R/memvault',
   },
   {
     name: 'NullTrace',
@@ -52,7 +52,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stars: 189,
     lang: 'Go',
     langColor: '#00ADD8',
-    url: 'https://github.com/nullsec-collective/nulltrace',
+    url: 'https://github.com/OpencodeNIT-R/nulltrace',
   },
   {
     name: 'CryptoMesh',
@@ -61,7 +61,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stars: 156,
     lang: 'Rust',
     langColor: '#dea584',
-    url: 'https://github.com/nullsec-collective/cryptomesh',
+    url: 'https://github.com/OpencodeNIT-R/cryptomesh',
   },
   {
     name: 'PhishKit',
@@ -70,7 +70,7 @@ export const DEFAULT_PROJECTS: Project[] = [
     stars: 98,
     lang: 'TypeScript',
     langColor: '#3178c6',
-    url: 'https://github.com/nullsec-collective/phishkit',
+    url: 'https://github.com/OpencodeNIT-R/phishkit',
   },
 ]
 

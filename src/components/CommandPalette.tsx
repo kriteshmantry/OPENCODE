@@ -19,6 +19,7 @@ interface Props {
   onOpenTerminal: () => void
   onOpenSecurityModal: () => void
   onToggleTheme: () => void
+  currentTheme?: 'green' | 'blue'
 }
 
 export default function CommandPalette({
@@ -29,6 +30,7 @@ export default function CommandPalette({
   onOpenTerminal,
   onOpenSecurityModal,
   onToggleTheme,
+  currentTheme = 'green',
 }: Props) {
   const [query, setQuery] = useState('')
   const [selectedIndex, setSelectedIndex] = useState(0)
@@ -81,9 +83,10 @@ export default function CommandPalette({
     },
     {
       id: 'act-theme',
-      title: 'Toggle Dark / Light Theme',
+      title: `Switch Theme (${currentTheme === 'blue' ? 'Cobalt Blue → Matrix Green' : 'Matrix Green → Cobalt Blue'})`,
       category: 'Actions',
-      subtitle: 'Switch display appearance',
+      subtitle: `Switch color scheme between Matrix Green (#00ff41) and Cobalt Blue (#1C6DFD) [Active: ${currentTheme.toUpperCase()}]`,
+      shortcut: 'Theme',
       action: () => {
         onToggleTheme()
       },
@@ -128,6 +131,16 @@ export default function CommandPalette({
       action: () => {
         onClose()
         navigate('/team')
+      },
+    },
+    {
+      id: 'nav-github',
+      title: 'Go to GitHub Page',
+      category: 'Navigation',
+      subtitle: 'OpenCode & NullSec repositories, contributions, and tools',
+      action: () => {
+        onClose()
+        navigate('/github')
       },
     },
   ]

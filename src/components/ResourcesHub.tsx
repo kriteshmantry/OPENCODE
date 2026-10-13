@@ -42,7 +42,7 @@ Kernel exploitation represents the pinnacle of privilege escalation on UNIX syst
 ### Laboratory Setup
 We provide a vulnerable kernel module playground on the OpenCode GitHub repo with automated QEMU launch scripts:
 \`\`\`bash
-git clone https://github.com/nullsec-collective/kernel-pwn-lab
+git clone https://github.com/OpencodeNIT-R/kernel-pwn-lab
 cd kernel-pwn-lab && ./launch_qemu.sh
 \`\`\`
 `,

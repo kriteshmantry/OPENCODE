@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Link, useLocation } from 'react-router-dom'
+import OpenCodeLogo from './OpenCodeLogo'
 
 interface NavItem {
   label: string
@@ -13,10 +14,11 @@ const NAV_LINKS: NavItem[] = [
   { label: 'Domains', to: '/domains', isRoute: true },
   { label: 'Events', to: '/events', isRoute: true },
   { label: 'Team', to: '/team', isRoute: true },
+  { label: 'GitHub', to: '/github', isRoute: true },
 ]
 
 interface Props {
-  theme: 'dark' | 'light'
+  theme: 'green' | 'blue'
   onThemeToggle: () => void
   onJoinClick?: () => void
   onOpenSearch?: () => void
@@ -52,9 +54,12 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
         {/* Logo */}
         <Link
           to="/"
-          className="font-mono font-bold text-primary text-base md:text-lg tracking-tight glow-text flex items-center gap-2"
+          className="font-mono font-bold text-primary text-base md:text-lg tracking-tight glow-text flex items-center gap-2.5 group"
         >
-          <span>&gt;_</span>
+          <div className="w-7 h-7 rounded-md border border-primary/40 bg-card/90 p-1 flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.25)] group-hover:border-primary transition-all">
+            <OpenCodeLogo showText={false} className="w-full h-full" />
+          </div>
+          <span className="text-muted-fg font-normal text-sm">&gt;_</span>
           <span>OpenCode <span className="text-muted-fg font-normal text-xs md:text-sm">NITR</span></span>
         </Link>
 
@@ -69,7 +74,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
                     to={item.to}
                     className={`font-mono text-xs px-3 py-1.5 rounded-sm transition-all duration-200 flex items-center gap-1.5 ${
                       active
-                        ? 'bg-primary/15 text-primary border border-primary/40 font-bold shadow-[0_0_12px_rgba(0,255,65,0.2)]'
+                        ? 'bg-primary/15 text-primary border border-primary/40 font-bold shadow-[0_0_12px_rgba(var(--primary-rgb),0.25)]'
                         : 'text-muted-fg hover:text-fg hover:bg-card/60'
                     }`}
                   >
@@ -107,24 +112,38 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
             </span>
           </button>
 
-          {/* Theme toggle */}
+          {/* Dual Theme Switcher in top right corner */}
           <button
             onClick={onThemeToggle}
-            className="w-8 h-8 rounded border border-borderc flex items-center justify-center text-muted-fg hover:text-primary hover:border-primary transition-colors cursor-pointer"
-            aria-label="Toggle theme"
+            className="flex items-center gap-2 px-2.5 py-1.5 rounded-sm border border-borderc bg-card/90 hover:border-primary transition-all duration-200 font-mono text-xs cursor-pointer shadow-sm group select-none"
+            title={`Active Theme: ${theme === 'green' ? 'Matrix Green (#00ff41)' : 'Cobalt Blue (#1C6DFD)'} — Click to switch theme`}
+            aria-label="Switch theme"
           >
-            {theme === 'dark' ? (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
-                <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
-                <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
-                <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
-              </svg>
-            ) : (
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-                <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
-              </svg>
-            )}
+            {/* Dual color indicator pill */}
+            <div className="flex items-center gap-1 bg-bg/90 px-1.5 py-0.5 rounded-full border border-borderc/80">
+              <span
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  theme === 'green'
+                    ? 'bg-[#00ff41] shadow-[0_0_8px_#00ff41] scale-110'
+                    : 'bg-[#00ff41]/25 opacity-40'
+                }`}
+                title="Matrix Green (#00ff41)"
+              />
+              <span
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                  theme === 'blue'
+                    ? 'bg-[#1C6DFD] shadow-[0_0_8px_#1C6DFD] scale-110'
+                    : 'bg-[#1C6DFD]/25 opacity-40'
+                }`}
+                title="Cobalt Blue (#1C6DFD)"
+              />
+            </div>
+            <span className="font-bold text-[11px] tracking-wider uppercase text-fg group-hover:text-primary transition-colors">
+              {theme === 'green' ? 'GREEN' : 'BLUE'}
+            </span>
+            <span className="text-[10px] text-muted-fg hidden sm:inline border-l border-borderc/80 pl-1.5 font-normal">
+              {theme === 'green' ? '#00FF41' : '#1C6DFD'}
+            </span>
           </button>
 
           {/* Join CTA */}
@@ -185,24 +204,46 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
                   </li>
                 )
               })}
-              <li className="pt-2 border-t border-borderc flex items-center justify-between">
+              <li className="pt-2 border-t border-borderc flex flex-col gap-2.5">
+                <div className="flex items-center justify-between">
+                  <button
+                    className="text-primary font-bold flex items-center gap-2 cursor-pointer"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      onJoinClick?.()
+                    }}
+                  >
+                    $ join --apply
+                  </button>
+                  <button
+                    className="text-accent flex items-center gap-1 cursor-pointer"
+                    onClick={() => {
+                      setMenuOpen(false)
+                      onOpenSearch?.()
+                    }}
+                  >
+                    🔍 Search (Ctrl+K)
+                  </button>
+                </div>
                 <button
-                  className="text-primary font-bold flex items-center gap-2 cursor-pointer"
                   onClick={() => {
-                    setMenuOpen(false)
-                    onJoinClick?.()
+                    onThemeToggle()
                   }}
+                  className="flex items-center justify-between px-3 py-2 rounded border border-borderc bg-card/80 text-fg text-xs font-mono cursor-pointer"
                 >
-                  $ join --apply
-                </button>
-                <button
-                  className="text-accent flex items-center gap-1 cursor-pointer"
-                  onClick={() => {
-                    setMenuOpen(false)
-                    onOpenSearch?.()
-                  }}
-                >
-                  🔍 Search (Ctrl+K)
+                  <div className="flex items-center gap-2">
+                    <span
+                      className="w-2.5 h-2.5 rounded-full"
+                      style={{
+                        backgroundColor: theme === 'green' ? '#00ff41' : '#1C6DFD',
+                        boxShadow: theme === 'green' ? '0 0 8px #00ff41' : '0 0 8px #1C6DFD',
+                      }}
+                    />
+                    <span>Active Theme: <strong className="uppercase text-primary">{theme}</strong></span>
+                  </div>
+                  <span className="text-[10px] text-muted-fg uppercase font-bold">
+                    Switch to {theme === 'green' ? 'Blue' : 'Green'} ➔
+                  </span>
                 </button>
               </li>
             </ul>

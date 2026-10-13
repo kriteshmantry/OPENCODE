@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion'
 import { Link } from 'react-router-dom'
+import OpenCodeLogo from './OpenCodeLogo'
 
 interface Props {
   onOpenSecurityModal: () => void
@@ -16,8 +17,13 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
         <div className="grid md:grid-cols-4 gap-10 mb-12">
           {/* Brand */}
           <div className="md:col-span-2">
-            <div className="font-mono font-black text-primary text-xl mb-2 glow-text">
-              <span className="text-muted-fg">&gt;_</span>OpenCode <span className="text-muted-fg text-sm font-normal">NIT Rourkela</span>
+            <div className="flex items-center gap-2.5 mb-2">
+              <div className="w-8 h-8 rounded-lg border border-primary/40 bg-card p-1 flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.2)]">
+                <OpenCodeLogo showText={false} className="w-full h-full" />
+              </div>
+              <div className="font-mono font-black text-primary text-xl glow-text">
+                <span className="text-muted-fg">&gt;_</span>OpenCode <span className="text-muted-fg text-sm font-normal">NIT Rourkela</span>
+              </div>
             </div>
             <p className="text-xs text-muted-fg leading-relaxed max-w-sm">
               Official Open Source and Cybersecurity Club of National Institute of Technology, Rourkela. Building high-impact systems software and training elite CTF competitors.
@@ -60,14 +66,12 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
             <div className="text-xs text-muted-fg uppercase tracking-widest mb-4">Operations & Comms</div>
             <ul className="space-y-2 text-xs">
               <li>
-                <a
-                  href="https://github.com/nullsec-collective"
-                  target="_blank"
-                  rel="noopener noreferrer"
+                <Link
+                  to="/github"
                   className="text-muted-fg hover:text-accent transition-colors flex items-center justify-between"
                 >
-                  <span>GitHub Org</span> <span>↗</span>
-                </a>
+                  <span>GitHub Org</span> <span>&rarr;</span>
+                </Link>
               </li>
               <li>
                 <a
@@ -112,26 +116,23 @@ export default function Footer({ onOpenSecurityModal, onOpenTerminal, onOpenSear
         {/* Bottom bar */}
         <div className="pt-8 border-t border-borderc flex flex-col md:flex-row items-center justify-between gap-4 text-xs">
           <span className="text-muted-fg">
-            © {year} OpenCode & NullSec — National Institute of Technology, Rourkela. MIT License.
+            © {year} OpenCode — National Institute of Technology, Rourkela.
           </span>
 
           <div className="flex items-center gap-5">
-            <motion.a
-              href="https://github.com/nullsec-collective"
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.05 }}
+            <Link
+              to="/github"
               className="text-muted-fg hover:text-primary flex items-center gap-1.5 transition-colors"
             >
               <GithubIcon />
-              fork this repo
-            </motion.a>
+              github portal
+            </Link>
             <span className="text-muted-fg/40">|</span>
             <button
               onClick={onOpenTerminal}
               className="text-muted-fg/60 hover:text-primary transition-colors cursor-pointer text-[11px]"
             >
-              <span className="text-primary">↑↑↓↓←→←→BA</span> Terminal
+              Terminal
             </button>
           </div>
         </div>

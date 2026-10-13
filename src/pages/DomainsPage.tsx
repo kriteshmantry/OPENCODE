@@ -6,9 +6,10 @@ import { Link } from 'react-router-dom'
 
 interface DomainsPageProps {
   onJoinClick?: () => void
+  theme?: 'green' | 'blue'
 }
 
-export default function DomainsPage({ onJoinClick }: DomainsPageProps) {
+export default function DomainsPage({ onJoinClick, theme = 'green' }: DomainsPageProps) {
   const [activeDomain, setActiveDomain] = useState<'cybersec' | 'opensource'>('cybersec')
 
   return (
@@ -220,14 +221,18 @@ export default function DomainsPage({ onJoinClick }: DomainsPageProps) {
             <ShinyButton
               label="JOIN OPENCODE"
               onClick={onJoinClick}
-              accentColor="#00ff41"
-              accentSoftColor="#80ff9f"
-              fillColor="#041207"
-              labelColor="#00ff41"
+              accentColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
+              accentSoftColor={theme === 'blue' ? '#93c5fd' : '#80ff9f'}
+              fillColor={theme === 'blue' ? '#051026' : '#041207'}
+              labelColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
               cornerRadius={24}
               sweepDuration={2.6}
               arcWidth={7}
-              className="!py-3.5 !px-8 font-mono text-sm font-bold shadow-[0_0_20px_rgba(0,255,65,0.22)] hover:shadow-[0_0_35px_rgba(0,255,65,0.45)] transition-shadow cursor-pointer"
+              className={`!py-3.5 !px-8 font-mono text-sm font-bold transition-shadow cursor-pointer ${
+                theme === 'blue'
+                  ? 'shadow-[0_0_20px_rgba(28,109,253,0.3)] hover:shadow-[0_0_35px_rgba(28,109,253,0.55)]'
+                  : 'shadow-[0_0_20px_rgba(0,255,65,0.22)] hover:shadow-[0_0_35px_rgba(0,255,65,0.45)]'
+              }`}
             />
           </div>
         </div>
