@@ -69,8 +69,9 @@ const TextReveal = React.memo(function TextReveal({
     if (target === "_blank") rootProps.rel = "noopener noreferrer";
   }
 
+  const DynamicComponent = Component as any
   return (
-    <Component {...rootProps}>
+    <DynamicComponent {...rootProps}>
       <span
         className="inline-flex overflow-hidden relative"
         style={{ height: "1em" }}
@@ -93,7 +94,7 @@ const TextReveal = React.memo(function TextReveal({
           </span>
         ))}
       </span>
-    </Component>
+    </DynamicComponent>
   );
 });
 

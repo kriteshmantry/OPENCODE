@@ -306,6 +306,7 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
         </motion.div>
       </div>
 
+
       {/* Scroll indicator */}
       {showContent && (
         <motion.div
