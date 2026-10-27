@@ -1,7 +1,11 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import ContributionSkyline, { type PaletteName } from '../components/ui/contribution-skyline'
 import OpenCodeLogo from '../components/OpenCodeLogo'
+import CountUp from '../components/fx/CountUp'
+import CornerBrackets from '../components/fx/CornerBrackets'
+import Reveal from '../components/fx/Reveal'
+import TypedLines from '../components/fx/TypedLines'
 
 interface RepoItem {
   name: string
@@ -98,7 +102,8 @@ export default function GithubPage() {
     <div className="min-h-screen pt-24 pb-20 px-6 max-w-7xl mx-auto font-mono text-fg">
       {/* 1. Header / Organization Badge Banner */}
       <section className="mb-12">
-        <div className="p-6 md:p-8 rounded-xl border border-borderc bg-card/60 backdrop-blur-md relative overflow-hidden">
+        <Reveal>
+        <div className="p-6 md:p-8 border border-borderc bg-card/60 backdrop-blur-md relative overflow-hidden">
           {/* Subtle Ambient Background Glow */}
           <div className="absolute -top-24 -right-24 w-96 h-96 bg-primary/10 rounded-full blur-3xl pointer-events-none" />
           <div className="absolute -bottom-24 -left-24 w-96 h-96 bg-accent/10 rounded-full blur-3xl pointer-events-none" />
@@ -109,7 +114,7 @@ export default function GithubPage() {
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-2xl border-2 border-primary/50 shadow-[0_0_20px_rgba(var(--primary-rgb),0.3)] bg-[#05090e] p-2.5 flex items-center justify-center overflow-hidden transition-transform duration-200 group-hover:scale-105">
                   <OpenCodeLogo showText={true} className="w-full h-full object-contain drop-shadow" />
                 </div>
-                <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 rounded-full text-[10px] bg-primary text-black font-bold uppercase tracking-wider shadow-sm select-none">
+                <span className="absolute -bottom-1.5 -right-1.5 px-2 py-0.5 text-[10px] bg-primary text-black font-bold uppercase tracking-wider shadow-sm select-none">
                   NITR
                 </span>
               </div>
@@ -162,22 +167,23 @@ export default function GithubPage() {
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-8 pt-6 border-t border-borderc/80">
             <div>
               <span className="text-[11px] text-muted-fg block">Total Stars</span>
-              <span className="text-xl font-bold text-primary">1,500+</span>
+              <CountUp value={1500} suffix="+" className="text-xl font-bold text-primary" />
             </div>
             <div>
               <span className="text-[11px] text-muted-fg block">Open Source Tools</span>
-              <span className="text-xl font-bold text-fg">24+</span>
+              <CountUp value={24} suffix="+" className="text-xl font-bold text-fg" />
             </div>
             <div>
               <span className="text-[11px] text-muted-fg block">Active Contributors</span>
-              <span className="text-xl font-bold text-accent">48+</span>
+              <CountUp value={48} suffix="+" className="text-xl font-bold text-accent" />
             </div>
             <div>
               <span className="text-[11px] text-muted-fg block">Yearly Contributions</span>
-              <span className="text-xl font-bold text-primary">1,720+</span>
+              <CountUp value={1720} suffix="+" className="text-xl font-bold text-primary" />
             </div>
           </div>
         </div>
+        </Reveal>
       </section>
 
       {/* 2. 3D Isometric Contribution Skyline Graph */}
@@ -267,15 +273,25 @@ export default function GithubPage() {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <motion.div layout className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+          <AnimatePresence mode="popLayout">
           {filteredRepos.map((repo, idx) => (
             <motion.div
               key={repo.name}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: idx * 0.05 }}
-              className="p-5 rounded-lg border border-borderc bg-card/70 hover:border-primary/50 transition-all flex flex-col justify-between group"
+              layout
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0, transition: { duration: 0.4, delay: idx * 0.06 } }}
+              exit={{ opacity: 0, scale: 0.94, transition: { duration: 0.2 } }}
+              transition={{ layout: { type: 'spring', stiffness: 300, damping: 30 } }}
+              className="relative p-5 border border-borderc bg-card/70 hover:border-primary/50 hover:-translate-y-1 transition-[border-color,transform] duration-300 flex flex-col justify-between group"
             >
+              {/* Commit line: draws across the top edge on hover */}
+              <span
+                aria-hidden="true"
+                className="absolute top-0 left-0 right-0 h-[2px] origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 ease-out"
+                style={{ background: repo.langColor, boxShadow: `0 0 10px ${repo.langColor}` }}
+              />
+              <CornerBrackets />
               <div>
                 <div className="flex items-center justify-between mb-2">
                   <a
@@ -327,11 +343,12 @@ export default function GithubPage() {
               </div>
             </motion.div>
           ))}
-        </div>
+          </AnimatePresence>
+        </motion.div>
       </section>
 
       {/* 4. Contribution Guide Section */}
-      <section className="p-6 md:p-8 rounded-xl border border-borderc bg-card/50 backdrop-blur-sm">
+      <section className="p-6 md:p-8 border border-borderc bg-card/50 backdrop-blur-sm">
         <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6">
           <div className="max-w-xl">
             <span className="text-xs text-primary uppercase tracking-[0.2em] font-bold block mb-1">
@@ -345,12 +362,16 @@ export default function GithubPage() {
             </p>
           </div>
 
-          <div className="w-full lg:w-auto bg-black/60 p-4 rounded-lg border border-borderc font-mono text-xs text-muted-fg">
-            <div className="text-primary font-bold mb-1">// Quick Terminal Setup:</div>
-            <p className="text-fg">$ git clone {ORG_URL}/vulnscan.git</p>
-            <p className="text-fg">$ cd vulnscan && git checkout -b feat/patch</p>
-            <p className="text-accent mt-1">$ git push origin feat/patch</p>
-          </div>
+          <TypedLines
+            stagger={0.45}
+            className="w-full lg:w-auto bg-black/60 p-4 border border-borderc font-mono text-xs text-muted-fg overflow-x-auto"
+            lines={[
+              <span className="text-primary font-bold">// Quick Terminal Setup:</span>,
+              <span className="text-fg">$ git clone {ORG_URL}/vulnscan.git</span>,
+              <span className="text-fg">$ cd vulnscan && git checkout -b feat/patch</span>,
+              <span className="text-accent">$ git push origin feat/patch</span>,
+            ]}
+          />
         </div>
       </section>
     </div>

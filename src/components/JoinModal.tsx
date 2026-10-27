@@ -145,7 +145,7 @@ export default function JoinModal({ isOpen, onClose }: Props) {
               animate={{ opacity: 1, y: 0 }}
               className="text-center py-8"
             >
-              <div className="w-16 h-16 mx-auto mb-4 border-2 border-primary rounded-full flex items-center justify-center text-primary text-2xl font-mono">
+              <div className="w-16 h-16 mx-auto mb-4 border-2 border-primary flex items-center justify-center text-primary text-2xl font-mono">
                 ✓
               </div>
               <h3 className="text-xl font-bold text-primary mb-2 font-mono">

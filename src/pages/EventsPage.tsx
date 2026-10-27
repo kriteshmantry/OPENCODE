@@ -3,6 +3,8 @@ import { motion, type Variants } from 'framer-motion'
 import DecryptText from '../components/DecryptText'
 import EventRegisterModal, { type EventItem } from '../components/EventRegisterModal'
 import { Link } from 'react-router-dom'
+import Countdown from '../components/fx/Countdown'
+import CornerBrackets from '../components/fx/CornerBrackets'
 
 const EVENTS: EventItem[] = [
   {
@@ -50,9 +52,14 @@ const container: Variants = {
   hidden: {},
   show: { transition: { staggerChildren: 0.12 } },
 }
+// Each briefing unfolds top-down, like a classified dossier being printed
 const item: Variants = {
-  hidden: { opacity: 0, y: 24 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' } },
+  hidden: { opacity: 0, clipPath: 'inset(0% 0% 100% 0%)' },
+  show: {
+    opacity: 1,
+    clipPath: 'inset(0% 0% 0% 0%)',
+    transition: { duration: 0.7, ease: [0.7, 0, 0.2, 1] },
+  },
 }
 
 export default function EventsPage() {
@@ -94,8 +101,9 @@ export default function EventsPage() {
             <motion.div
               key={event.id}
               variants={item}
-              className="bg-card border border-borderc hover:border-primary/50 transition-all rounded-sm p-6 flex flex-col justify-between group"
+              className="relative bg-card border border-borderc hover:border-primary/50 transition-colors p-6 flex flex-col justify-between group"
             >
+              <CornerBrackets />
               <div>
                 <div className="flex items-center justify-between gap-3 mb-4">
                   <span
@@ -107,7 +115,7 @@ export default function EventsPage() {
                   </span>
                   {event.badge && (
                     <span className="font-mono text-xs text-primary flex items-center gap-1.5">
-                      <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
+                      <span className="w-1.5 h-1.5 bg-primary animate-pulse" />
                       {event.badge}
                     </span>
                   )}
@@ -120,6 +128,8 @@ export default function EventsPage() {
               </div>
 
               <div className="border-t border-borderc/60 pt-4 space-y-3">
+                <Countdown date={event.date} time={event.time} />
+
                 <div className="grid grid-cols-2 gap-2 text-xs font-mono text-muted-fg">
                   <div>
                     <span className="text-fg/60 block">DATE</span>
@@ -144,9 +154,16 @@ export default function EventsPage() {
 
                 <button
                   onClick={() => setSelectedEvent(event)}
-                  className="w-full mt-2 py-2.5 px-4 font-mono text-xs bg-primary/10 border border-primary/30 text-primary hover:bg-primary hover:text-bg font-bold rounded-sm transition-colors cursor-pointer"
+                  className="group/btn relative overflow-hidden w-full mt-2 py-2.5 px-4 font-mono text-xs bg-primary/10 border border-primary/30 text-primary hover:text-bg font-bold transition-colors duration-300 cursor-pointer"
                 >
-                  Register for Operation &rarr;
+                  <span
+                    aria-hidden="true"
+                    className="absolute inset-0 bg-primary origin-left scale-x-0 group-hover/btn:scale-x-100 transition-transform duration-300 ease-out"
+                  />
+                  <span className="relative inline-flex items-center gap-2">
+                    Register for Operation
+                    <span className="transition-transform duration-300 group-hover/btn:translate-x-1">&rarr;</span>
+                  </span>
                 </button>
               </div>
             </motion.div>

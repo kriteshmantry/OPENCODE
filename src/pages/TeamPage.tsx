@@ -1,7 +1,9 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import DecryptText from '../components/DecryptText'
 import { Link } from 'react-router-dom'
+import CornerBrackets from '../components/fx/CornerBrackets'
+import Reveal from '../components/fx/Reveal'
 
 const FACULTY_ADVISOR = {
   name: 'Dr. S. K. Rath / Dr. B. Majhi',
@@ -107,30 +109,40 @@ export default function TeamPage() {
           </div>
 
           {/* Track Filter */}
-          <div className="flex border border-borderc rounded p-1 bg-card self-start md:self-auto">
+          <div className="flex border border-borderc p-1 bg-card self-start md:self-auto">
             {(['All', 'Cybersecurity', 'Open Source'] as const).map(tab => (
               <button
                 key={tab}
                 onClick={() => setFilter(tab)}
-                className={`px-4 py-1.5 font-mono text-xs rounded transition-colors cursor-pointer ${
-                  filter === tab
-                    ? 'bg-primary text-bg font-bold shadow-[0_0_12px_rgba(0,255,65,0.3)]'
-                    : 'text-muted-fg hover:text-fg'
+                className={`relative px-4 py-1.5 font-mono text-xs transition-colors cursor-pointer ${
+                  filter === tab ? 'text-bg font-bold' : 'text-muted-fg hover:text-fg'
                 }`}
               >
-                {tab}
+                {filter === tab && (
+                  <motion.span
+                    layoutId="team-filter-pill"
+                    className="absolute inset-0 bg-primary shadow-[0_0_12px_rgba(var(--primary-rgb),0.3)]"
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{tab}</span>
               </button>
             ))}
           </div>
         </div>
 
         {/* Faculty Advisor Section */}
-        <div className="bg-card border border-borderc p-6 md:p-8 rounded-sm mb-12 flex flex-col md:flex-row items-center gap-6">
-          <img
-            src={FACULTY_ADVISOR.avatar}
-            alt={FACULTY_ADVISOR.name}
-            className="w-24 h-24 rounded-full border-2 border-accent object-cover flex-shrink-0"
-          />
+        <Reveal className="mb-12">
+        <div className="group relative bg-card border border-borderc p-6 md:p-8 flex flex-col md:flex-row items-center gap-6">
+          <CornerBrackets accent locked />
+          <div className="relative w-24 h-24 flex-shrink-0 overflow-hidden border-2 border-accent">
+            <img
+              src={FACULTY_ADVISOR.avatar}
+              alt={FACULTY_ADVISOR.name}
+              className="w-full h-full object-cover grayscale-[60%] group-hover:grayscale-0 transition-[filter] duration-500"
+            />
+            <span className="id-scan-line" />
+          </div>
           <div>
             <span className="font-mono text-xs text-accent uppercase tracking-widest block mb-1">
               // Faculty Mentorship
@@ -146,24 +158,32 @@ export default function TeamPage() {
             </p>
           </div>
         </div>
+        </Reveal>
 
-        {/* Core Team Grid */}
-        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
-          {filteredTeam.map(member => (
+        {/* Core Team Grid: filtering reflows the roster in place */}
+        <motion.div layout className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 font-mono">
+          <AnimatePresence mode="popLayout">
+          {filteredTeam.map((member, i) => (
             <motion.div
               key={member.handle}
-              initial={{ opacity: 0, y: 15 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.4 }}
-              className="bg-card border border-borderc hover:border-primary/50 transition-all rounded-sm p-6 flex flex-col justify-between group"
+              layout
+              initial={{ opacity: 0, y: 24, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1, transition: { duration: 0.45, delay: i * 0.06 } }}
+              exit={{ opacity: 0, scale: 0.92, filter: 'blur(4px)', transition: { duration: 0.25 } }}
+              transition={{ layout: { type: 'spring', stiffness: 300, damping: 30 } }}
+              className="relative bg-card border border-borderc hover:border-primary/50 transition-colors p-6 flex flex-col justify-between group"
             >
+              <CornerBrackets accent={member.track === 'Open Source'} />
               <div>
                 <div className="flex items-start justify-between gap-4 mb-4">
-                  <img
-                    src={member.avatar}
-                    alt={member.name}
-                    className="w-16 h-16 rounded border border-borderc object-cover group-hover:border-primary transition-colors"
-                  />
+                  <div className="relative w-16 h-16 overflow-hidden border border-borderc group-hover:border-primary transition-colors">
+                    <img
+                      src={member.avatar}
+                      alt={member.name}
+                      className="w-full h-full object-cover grayscale group-hover:grayscale-0 group-hover:scale-105 transition-[filter,transform] duration-500"
+                    />
+                    <span className="id-scan-line" />
+                  </div>
                   <div className="text-right">
                     <span className="text-xs text-primary font-bold block">@{member.handle}</span>
                     <span
@@ -206,7 +226,8 @@ export default function TeamPage() {
               </div>
             </motion.div>
           ))}
-        </div>
+          </AnimatePresence>
+        </motion.div>
       </div>
     </div>
   )

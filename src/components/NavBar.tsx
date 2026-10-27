@@ -59,7 +59,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
           <div className="w-7 h-7 rounded-md border border-primary/40 bg-card/90 p-1 flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.25)] group-hover:border-primary transition-all">
             <OpenCodeLogo showText={false} className="w-full h-full" />
           </div>
-          <span className="text-muted-fg font-normal text-sm">&gt;_</span>
+          <span className="hidden sm:inline text-muted-fg font-normal text-sm">&gt;_</span>
           <span>OpenCode <span className="text-muted-fg font-normal text-xs md:text-sm">NITR</span></span>
         </Link>
 
@@ -72,14 +72,19 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
                 {item.isRoute ? (
                   <Link
                     to={item.to}
-                    className={`font-mono text-xs px-3 py-1.5 rounded-sm transition-all duration-200 flex items-center gap-1.5 ${
-                      active
-                        ? 'bg-primary/15 text-primary border border-primary/40 font-bold shadow-[0_0_12px_rgba(var(--primary-rgb),0.25)]'
-                        : 'text-muted-fg hover:text-fg hover:bg-card/60'
+                    className={`relative font-mono text-xs px-3 py-1.5 transition-colors duration-200 flex items-center gap-1.5 ${
+                      active ? 'text-primary font-bold' : 'text-muted-fg hover:text-fg hover:bg-card/60'
                     }`}
                   >
-                    {active && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
-                    <span>{item.label}</span>
+                    {active && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-0 bg-primary/15 border border-primary/40 shadow-[0_0_12px_rgba(var(--primary-rgb),0.25)]"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    {active && <span className="relative w-1.5 h-1.5 bg-primary animate-pulse" />}
+                    <span className="relative">{item.label}</span>
                   </Link>
                 ) : (
                   <a
@@ -107,7 +112,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
           >
             <span>🔍</span>
             <span className="hidden sm:inline">Search</span>
-            <span className="text-[10px] px-1.5 py-0.2 bg-muted rounded border border-borderc text-muted-fg">
+            <span className="hidden sm:inline text-[10px] px-1.5 py-0.2 bg-muted rounded border border-borderc text-muted-fg">
               Ctrl+K
             </span>
           </button>
@@ -120,7 +125,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
             aria-label="Switch theme"
           >
             {/* Dual color indicator pill */}
-            <div className="flex items-center gap-1 bg-bg/90 px-1.5 py-0.5 rounded-full border border-borderc/80">
+            <div className="flex items-center gap-1 bg-bg/90 px-1.5 py-0.5 border border-borderc/80">
               <span
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   theme === 'green'
@@ -138,7 +143,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
                 title="Cobalt Blue (#1C6DFD)"
               />
             </div>
-            <span className="font-bold text-[11px] tracking-wider uppercase text-fg group-hover:text-primary transition-colors">
+            <span className="hidden sm:inline font-bold text-[11px] tracking-wider uppercase text-fg group-hover:text-primary transition-colors">
               {theme === 'green' ? 'GREEN' : 'BLUE'}
             </span>
             <span className="text-[10px] text-muted-fg hidden sm:inline border-l border-borderc/80 pl-1.5 font-normal">
