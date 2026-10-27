@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from 'react'
 import DecryptText from './DecryptText'
 import MatrixCodeRain from './ui/matrix-code-rain'
+import CornerBrackets from './fx/CornerBrackets'
 
 const EVENTS = [
   { year: '2019', title: 'Club Founded', body: 'Seven students, one whiteboard, and too much caffeine. NullSec started as a CTF study group meeting in a server closet.' },
@@ -355,10 +356,12 @@ export default function Timeline() {
               >
                 {/* Card */}
                 <div className="w-[calc(50%-2rem)] flex-shrink-0">
-                  <div className="timeline-card bg-card border border-borderc rounded-sm p-5 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(0,255,65,0.12)] transition-all group">
+                  <div className="timeline-card relative bg-card border border-borderc p-5 hover:border-primary/40 hover:shadow-[0_0_20px_rgba(var(--primary-rgb),0.12)] transition-all group">
+                    <CornerBrackets />
                     <div className="font-mono text-xs text-accent mb-2 uppercase tracking-widest flex items-center gap-2">
-                      <span>{ev.year}</span>
-                      <span className="w-1.5 h-1.5 rounded-full bg-accent/60" />
+                      <DecryptText text={ev.year} delay={350} />
+                      <span className="w-1.5 h-1.5 bg-accent/60" />
+                      <span className="h-px flex-1 bg-gradient-to-r from-accent/40 to-transparent origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500" />
                     </div>
                     <h3 className="font-mono text-lg font-bold text-fg mb-2 group-hover:text-primary transition-colors">
                       {ev.title}
@@ -368,7 +371,7 @@ export default function Timeline() {
                 </div>
 
                 {/* Center dot */}
-                <div className="timeline-dot absolute left-1/2 -translate-x-1/2 top-5 w-3.5 h-3.5 rounded-full border-2 border-primary/50 bg-bg z-20 transition-colors" />
+                <div className="timeline-dot absolute left-1/2 -translate-x-1/2 top-5 w-3.5 h-3.5 border-2 border-primary/50 bg-bg z-20 transition-colors" />
 
                 {/* Spacer */}
                 <div className="w-[calc(50%-2rem)] flex-shrink-0" />

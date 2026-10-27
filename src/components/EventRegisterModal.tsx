@@ -130,7 +130,7 @@ export default function EventRegisterModal({ event, isOpen, onClose }: Props) {
 
           {isSubmitted ? (
             <div className="text-center py-6">
-              <div className="w-14 h-14 mx-auto mb-4 border-2 border-primary rounded-full flex items-center justify-center text-primary text-2xl">
+              <div className="w-14 h-14 mx-auto mb-4 border-2 border-primary flex items-center justify-center text-primary text-2xl">
                 ✓
               </div>
               <h3 className="text-lg font-bold text-primary mb-2">SEAT RESERVED</h3>

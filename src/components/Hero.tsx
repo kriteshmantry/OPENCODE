@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion } from 'framer-motion'
+import { motion, useScroll, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
 import { TextReveal } from './ui/cascade-text'
 import { ShinyButton } from './ui/shiny-button'
@@ -10,10 +10,18 @@ interface HeroProps {
 }
 
 export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
+  const sectionRef = useRef<HTMLElement>(null)
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [showContent, setShowContent] = useState(false)
   const [titleText, setTitleText] = useState('')
+  const [glitchKey, setGlitchKey] = useState(0)
   const animRef = useRef<number>(0)
+
+  // Scrolling away pulls the title up and out while the network drifts slower behind it
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -140])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
+  const canvasY = useTransform(scrollYProgress, [0, 1], [0, 90])
 
   // Looping Typewriter effect cycling through: OPENCODE -> OPEN SOURCE -> CYBERSEC
   useEffect(() => {
@@ -43,6 +51,7 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
 
         if (charIndex === currentTarget.length) {
           setShowContent(true)
+          setGlitchKey(k => k + 1)
           // Hold for 1.5s when word is completely typed
           isDeleting = true
           timeoutId = setTimeout(tick, 1500)
@@ -131,6 +140,7 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
 
       // Draw connections
       const maxDist = 120
+      const linkRgb = theme === 'blue' ? '28, 109, 253' : '0, 255, 65'
       for (let i = 0; i < nodes.length; i++) {
         for (let j = i + 1; j < nodes.length; j++) {
           const dx = nodes[i].x - nodes[j].x
@@ -138,7 +148,7 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
           const dist = Math.sqrt(dx * dx + dy * dy)
           if (dist < maxDist) {
             const alpha = (1 - dist / maxDist) * 0.2
-            ctx.strokeStyle = `rgba(0, 255, 65, ${alpha})`
+            ctx.strokeStyle = `rgba(${linkRgb}, ${alpha})`
             ctx.lineWidth = 0.6
             ctx.beginPath()
             ctx.moveTo(nodes[i].x, nodes[i].y)
@@ -192,15 +202,15 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
       ro.disconnect()
       window.removeEventListener('mousemove', handleMouseMove)
     }
-  }, [])
+  }, [theme])
 
   return (
-    <section className="relative min-h-[92vh] flex flex-col items-center justify-center overflow-hidden grid-bg pt-20 pb-16">
+    <section ref={sectionRef} className="relative min-h-[92vh] flex flex-col items-center justify-center overflow-hidden grid-bg pt-20 pb-16">
       {/* Particle network background */}
-      <canvas
+      <motion.canvas
         ref={canvasRef}
         className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0.65 }}
+        style={{ opacity: 0.65, y: canvasY }}
         aria-hidden="true"
       />
 
@@ -213,22 +223,29 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
         aria-hidden="true"
       />
 
+      <HeroHud show={showContent} />
+
       {/* Main Hero Content */}
-      <div className="relative z-10 w-full max-w-4xl mx-auto px-6 text-center">
+      <motion.div
+        className="relative z-10 w-full max-w-4xl mx-auto px-6 text-center"
+        style={{ y: contentY, opacity: contentOpacity }}
+      >
         {/* Sub-badge */}
         <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 py-1 mb-8 rounded-full border border-primary/30 bg-primary/10 font-mono text-xs text-primary"
+          className="inline-flex items-center gap-2 px-3 py-1 mb-8 border border-primary/30 bg-primary/10 font-mono text-xs text-primary"
         >
-          <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+          <span className="w-2 h-2 bg-primary animate-pulse" />
           <span>National Institute of Technology, Rourkela</span>
         </motion.div>
 
         {/* Typewriter Title */}
         <h1 className="font-mono text-6xl md:text-8xl lg:text-9xl font-black text-primary tracking-tight mb-6 glow-text min-h-[1.15em] flex items-center justify-center select-none">
-          <span>{titleText}</span>
+          <span key={glitchKey} className={glitchKey ? 'glitch-once' : undefined}>
+            {titleText}
+          </span>
           <span className="cursor-blink text-primary ml-1">_</span>
         </h1>
 
@@ -270,7 +287,7 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
               accentSoftColor={theme === 'blue' ? '#93c5fd' : '#80ff9f'}
               fillColor={theme === 'blue' ? '#051026' : '#041207'}
               labelColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
-              cornerRadius={24}
+              cornerRadius={0}
               sweepDuration={2.6}
               arcWidth={7}
               className={`!py-3 !px-8 font-mono text-sm font-bold transition-shadow cursor-pointer select-none ${
@@ -304,8 +321,7 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
             </div>
           </div>
         </motion.div>
-      </div>
-
+      </motion.div>
 
       {/* Scroll indicator */}
       {showContent && (
@@ -316,12 +332,52 @@ export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
           className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none hidden sm:flex"
         >
           <span className="font-mono text-[10px] text-muted-fg uppercase tracking-widest">scroll</span>
-          <div className="w-4 h-7 border border-muted-fg/40 rounded-full flex items-start justify-center pt-1">
-            <div className="w-1 h-1.5 bg-muted-fg/60 rounded-full scroll-dot" />
+          <div className="w-4 h-7 border border-muted-fg/40 flex items-start justify-center pt-1">
+            <div className="w-1 h-1.5 bg-muted-fg/60 scroll-dot" />
           </div>
         </motion.div>
       )}
     </section>
+  )
+}
+
+/**
+ * Viewfinder frame around the hero: corner brackets draw outward from each
+ * corner, then campus coordinates and a node status settle in.
+ */
+function HeroHud({ show }: { show: boolean }) {
+  const corners = [
+    { pos: 'top-0 left-0', border: 'border-t-2 border-l-2', label: 'SYS://OPENCODE.NITR', labelPos: 'top-3 left-4' },
+    { pos: 'top-0 right-0', border: 'border-t-2 border-r-2', label: '22.2532°N  84.9010°E', labelPos: 'top-3 right-4 text-right' },
+    { pos: 'bottom-0 left-0', border: 'border-b-2 border-l-2', label: 'EST. 2019 // ROURKELA, ODISHA', labelPos: 'bottom-3 left-4' },
+    { pos: 'bottom-0 right-0', border: 'border-b-2 border-r-2', label: 'NODE STATUS: ONLINE', labelPos: 'bottom-3 right-4 text-right' },
+  ]
+
+  return (
+    <div
+      className="absolute inset-x-6 md:inset-x-12 top-24 bottom-12 pointer-events-none hidden sm:block z-[5]"
+      aria-hidden="true"
+    >
+      {corners.map((c, i) => (
+        <div key={c.label}>
+          <motion.span
+            className={`absolute ${c.pos} ${c.border} border-primary/60`}
+            initial={{ width: 0, height: 0, opacity: 0 }}
+            animate={{ width: 28, height: 28, opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.3 + i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
+          />
+          <motion.span
+            className={`absolute ${c.labelPos} font-mono text-[10px] tracking-[0.2em] text-muted-fg/80 flex items-center gap-2`}
+            initial={{ opacity: 0, y: i < 2 ? -6 : 6 }}
+            animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: i < 2 ? -6 : 6 }}
+            transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }}
+          >
+            {i === 3 && <span className="w-1.5 h-1.5 bg-primary cursor-blink" />}
+            {c.label}
+          </motion.span>
+        </div>
+      ))}
+    </div>
   )
 }
 

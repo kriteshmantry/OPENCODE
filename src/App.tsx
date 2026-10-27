@@ -16,6 +16,8 @@ import SecurityPolicyModal from './components/SecurityPolicyModal'
 import SubmitProjectModal from './components/SubmitProjectModal'
 import LoadingScreen from './components/LoadingScreen'
 import GithubPage from './pages/GithubPage'
+import ScrollProgress from './components/fx/ScrollProgress'
+import RouteTransition from './components/fx/RouteTransition'
 
 function ScrollToTop({ lenis }: { lenis: React.RefObject<Lenis | null> }) {
   const { pathname, hash } = useLocation()
@@ -183,6 +185,8 @@ export default function App() {
       </AnimatePresence>
 
       <ScrollToTop lenis={lenisRef} />
+      <ScrollProgress />
+      <RouteTransition />
 
       <NavBar
         theme={theme}

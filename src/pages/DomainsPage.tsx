@@ -1,7 +1,8 @@
 import { useState } from 'react'
-import { motion } from 'framer-motion'
+import { AnimatePresence, motion } from 'framer-motion'
 import DecryptText from '../components/DecryptText'
 import { ShinyButton } from '../components/ui/shiny-button'
+import CornerBrackets from '../components/fx/CornerBrackets'
 import { Link } from 'react-router-dom'
 
 interface DomainsPageProps {
@@ -9,8 +10,85 @@ interface DomainsPageProps {
   theme?: 'green' | 'blue'
 }
 
+type TrackId = 'cybersec' | 'opensource'
+
+const TRACKS: Record<
+  TrackId,
+  {
+    roadmapTitle: string
+    cards: { n: string; t: string; d: string; meta: [string, string][] }[]
+    roadmap: { weeks: string; t: string; d: string }[]
+  }
+> = {
+  cybersec: {
+    roadmapTitle: '12-Week Cadet Roadmap (Cybersecurity)',
+    cards: [
+      {
+        n: '01 // Binary Pwn & RE',
+        t: 'Low-Level Exploitation',
+        d: 'Deep analysis of memory management, heap allocators, ROP chains, ARM/x86 disassembly, and kernel-level vulnerabilities.',
+        meta: [['Tooling', 'Ghidra, IDA Pro, GDB-pwndbg, ROPgadget'], ['Target', 'Linux ELF, glibc heap, Windows PE']],
+      },
+      {
+        n: '02 // CTF & Wargames',
+        t: 'Competitive Hacking',
+        d: 'Participating in top tier CTFs (PicoCTF, CSAW, DefCon Quals, NullCTF) across Web, Crypto, Forensics, and OSINT.',
+        meta: [['Practice', 'HackTheBox, Root-Me, OverTheWire, CTFtime'], ['Format', 'Jeopardy, Attack-Defense, King of the Hill']],
+      },
+      {
+        n: '03 // Applied Cryptography',
+        t: 'Privacy & Zero-Knowledge',
+        d: 'Researching elliptic curves, lattice-based post-quantum algorithms, SNARKs, and secure multiparty computation (MPC).',
+        meta: [['Tooling', 'SageMath, Circom, Rust Crypto, Arkworks'], ['Focus', 'ZK-Rollups, lattice attacks, side-channel analysis']],
+      },
+    ],
+    roadmap: [
+      { weeks: 'WEEKS 1–3', t: 'Linux & Web Defense', d: 'Shell navigation, HTTP internals, SQLi, XSS, SSRF, Burp Suite.' },
+      { weeks: 'WEEKS 4–6', t: 'Crypto & Forensics', d: 'Classic & RSA attacks, Wireshark packet dumps, Volatility memory analysis.' },
+      { weeks: 'WEEKS 7–9', t: 'Assembly & Reversing', d: 'x86-64 calling conventions, Ghidra decompilation, cracking binaries.' },
+      { weeks: 'WEEKS 10–12', t: 'Binary Exploitation', d: 'Stack buffer overflows, shellcoding, ret2libc, DEP/ASLR bypass.' },
+    ],
+  },
+  opensource: {
+    roadmapTitle: '12-Week Cadet Roadmap (Systems & FOSS)',
+    cards: [
+      {
+        n: '01 // Systems & Kernel',
+        t: 'Rust & Linux Subsystems',
+        d: 'Building device drivers, async network runtimes, memory-safe OS modules, and shipping upstream patches to Linux & Rust.',
+        meta: [['Languages', 'Rust, C, Modern C++20, eBPF'], ['Targets', 'Linux Kernel, Tokio async, WebAssembly']],
+      },
+      {
+        n: '02 // Developer Tooling',
+        t: 'CLI & Security Scanners',
+        d: 'Creating open source frameworks (VulnScan, BruteForge, NullTrace) used by thousands of security practitioners worldwide.',
+        meta: [['Ecosystem', 'Go, Python, Clap CLI, Rayon'], ['License', '100% Free & Open Source (MIT/Apache-2.0)']],
+      },
+      {
+        n: '03 // Distributed Infrastructure',
+        t: 'P2P & Cloud Native',
+        d: 'Architecting resilient microservices, decentralized storage over IPFS, container orchestration, and WebAssembly runtimes.',
+        meta: [['Stack', 'Docker, Kubernetes, Libp2p, gRPC'], ['Focus', 'Fault tolerance, consensus, distributed caching']],
+      },
+    ],
+    roadmap: [
+      { weeks: 'WEEKS 1–3', t: 'Git & C Fundamentals', d: 'Git workflows, rebasing, pointers, memory models, POSIX APIs.' },
+      { weeks: 'WEEKS 4–6', t: 'Modern Rust', d: 'Borrow checker, ownership, lifetimes, cargo, safe concurrency.' },
+      { weeks: 'WEEKS 7–9', t: 'Network & Async', d: 'Tokio runtime, TCP/UDP sockets, writing high-throughput servers.' },
+      { weeks: 'WEEKS 10–12', t: 'Upstream Contributions', d: 'Contributing to large repos, RFC writing, review etiquette, kernel patches.' },
+    ],
+  },
+}
+
+/** Seconds the roadmap pipeline takes to travel from week 1 to week 12 */
+const PIPELINE_DURATION = 2.4
+
 export default function DomainsPage({ onJoinClick, theme = 'green' }: DomainsPageProps) {
-  const [activeDomain, setActiveDomain] = useState<'cybersec' | 'opensource'>('cybersec')
+  const [activeDomain, setActiveDomain] = useState<TrackId>('cybersec')
+  const track = TRACKS[activeDomain]
+  const isSec = activeDomain === 'cybersec'
+  const tone = isSec ? 'text-primary' : 'text-accent'
+  const stageTone = isSec ? 'text-accent' : 'text-primary'
 
   return (
     <div className="pt-24 pb-28 px-6 min-h-screen bg-bg">
@@ -39,178 +117,146 @@ export default function DomainsPage({ onJoinClick, theme = 'green' }: DomainsPag
           </div>
 
           {/* Interactive domain toggle */}
-          <div className="flex border border-borderc rounded p-1 bg-card self-start md:self-auto">
-            <button
-              onClick={() => setActiveDomain('cybersec')}
-              className={`px-5 py-2 font-mono text-xs rounded transition-colors cursor-pointer ${
-                activeDomain === 'cybersec' ? 'bg-primary text-bg font-bold shadow-[0_0_15px_rgba(0,255,65,0.3)]' : 'text-muted-fg hover:text-fg'
-              }`}
-            >
-              🛡️ Cybersecurity Track
-            </button>
-            <button
-              onClick={() => setActiveDomain('opensource')}
-              className={`px-5 py-2 font-mono text-xs rounded transition-colors cursor-pointer ${
-                activeDomain === 'opensource' ? 'bg-accent text-bg font-bold shadow-[0_0_15px_rgba(0,212,255,0.3)]' : 'text-muted-fg hover:text-fg'
-              }`}
-            >
-              🌐 Systems & FOSS Track
-            </button>
+          <div className="flex w-full sm:w-auto border border-borderc p-1 bg-card self-start md:self-auto">
+            {(
+              [
+                { id: 'cybersec', label: '🛡️ Cybersecurity Track', pill: 'bg-primary shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]' },
+                { id: 'opensource', label: '🌐 Systems & FOSS Track', pill: 'bg-accent shadow-[0_0_15px_rgba(0,212,255,0.3)]' },
+              ] as const
+            ).map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveDomain(tab.id)}
+                className={`relative flex-1 sm:flex-none px-3 sm:px-5 py-2 font-mono text-xs sm:whitespace-nowrap transition-colors cursor-pointer ${
+                  activeDomain === tab.id ? 'text-bg font-bold' : 'text-muted-fg hover:text-fg'
+                }`}
+              >
+                {activeDomain === tab.id && (
+                  <motion.span
+                    layoutId="domains-track-pill"
+                    className={`absolute inset-0 ${tab.pill}`}
+                    transition={{ type: 'spring', stiffness: 380, damping: 32 }}
+                  />
+                )}
+                <span className="relative">{tab.label}</span>
+              </button>
+            ))}
           </div>
         </div>
 
         {/* Domain Deep Dive Cards */}
-        {activeDomain === 'cybersec' ? (
+        <AnimatePresence mode="wait" initial={false}>
           <motion.div
-            key="cybersec"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
+            key={activeDomain}
+            initial="hidden"
+            animate="show"
+            exit="exit"
+            variants={{
+              hidden: {},
+              show: { transition: { staggerChildren: 0.1 } },
+              exit: { opacity: 0, transition: { duration: 0.2 } },
+            }}
             className="space-y-8"
           >
             <div className="grid md:grid-cols-3 gap-6 font-mono">
-              <div className="bg-card border border-borderc hover:border-primary/50 transition-colors p-6 rounded-sm">
-                <div className="text-primary text-xl font-bold mb-3">01 // Binary Pwn & RE</div>
-                <h3 className="font-bold text-fg text-base mb-2">Low-Level Exploitation</h3>
-                <p className="text-xs text-muted-fg leading-relaxed mb-4">
-                  Deep analysis of memory management, heap allocators, ROP chains, ARM/x86 disassembly, and kernel-level vulnerabilities.
-                </p>
-                <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
-                  <div><strong>Tooling:</strong> Ghidra, IDA Pro, GDB-pwndbg, ROPgadget</div>
-                  <div><strong>Target:</strong> Linux ELF, glibc heap, Windows PE</div>
-                </div>
-              </div>
-
-              <div className="bg-card border border-borderc hover:border-primary/50 transition-colors p-6 rounded-sm">
-                <div className="text-primary text-xl font-bold mb-3">02 // CTF & Wargames</div>
-                <h3 className="font-bold text-fg text-base mb-2">Competitive Hacking</h3>
-                <p className="text-xs text-muted-fg leading-relaxed mb-4">
-                  Participating in top tier CTFs (PicoCTF, CSAW, DefCon Quals, NullCTF) across Web, Crypto, Forensics, and OSINT.
-                </p>
-                <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
-                  <div><strong>Practice:</strong> HackTheBox, Root-Me, OverTheWire, CTFtime</div>
-                  <div><strong>Format:</strong> Jeopardy, Attack-Defense, King of the Hill</div>
-                </div>
-              </div>
-
-              <div className="bg-card border border-borderc hover:border-primary/50 transition-colors p-6 rounded-sm">
-                <div className="text-primary text-xl font-bold mb-3">03 // Applied Cryptography</div>
-                <h3 className="font-bold text-fg text-base mb-2">Privacy & Zero-Knowledge</h3>
-                <p className="text-xs text-muted-fg leading-relaxed mb-4">
-                  Researching elliptic curves, lattice-based post-quantum algorithms, SNARKs, and secure multiparty computation (MPC).
-                </p>
-                <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
-                  <div><strong>Tooling:</strong> SageMath, Circom, Rust Crypto, Arkworks</div>
-                  <div><strong>Focus:</strong> ZK-Rollups, lattice attacks, side-channel analysis</div>
-                </div>
-              </div>
+              {track.cards.map(card => (
+                <motion.div
+                  key={card.n}
+                  variants={{
+                    hidden: { opacity: 0, clipPath: isSec ? 'inset(0 100% 0 0)' : 'inset(0 0 0 100%)' },
+                    show: {
+                      opacity: 1,
+                      clipPath: 'inset(0 0% 0 0%)',
+                      transition: { duration: 0.55, ease: [0.7, 0, 0.2, 1] },
+                    },
+                  }}
+                  className={`group relative bg-card border border-borderc ${
+                    isSec ? 'hover:border-primary/50' : 'hover:border-accent/50'
+                  } hover:-translate-y-1 transition-[border-color,transform] duration-300 p-6`}
+                >
+                  <CornerBrackets accent={!isSec} />
+                  <div className={`${tone} text-xl font-bold mb-3`}>{card.n}</div>
+                  <h3 className="font-bold text-fg text-base mb-2">{card.t}</h3>
+                  <p className="text-xs text-muted-fg leading-relaxed mb-4">{card.d}</p>
+                  <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
+                    {card.meta.map(([k, v]) => (
+                      <div key={k}>
+                        <strong>{k}:</strong> {v}
+                      </div>
+                    ))}
+                  </div>
+                </motion.div>
+              ))}
             </div>
 
-            {/* Specialization Roadmap Details */}
-            <div className="bg-card/60 border border-borderc rounded-sm p-6 md:p-8 font-mono">
-              <h3 className="text-lg font-bold text-primary mb-4 flex items-center gap-2">
-                <span>//</span> 12-Week Cadet Roadmap (Cybersecurity)
+            {/* Specialization Roadmap: a pipeline that charges week by week */}
+            <motion.div
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { duration: 0.5 } } }}
+              className="bg-card/60 border border-borderc p-6 md:p-8 font-mono"
+            >
+              <h3 className={`text-lg font-bold ${tone} mb-6 flex items-center gap-2`}>
+                <span>//</span> {track.roadmapTitle}
               </h3>
-              <div className="grid md:grid-cols-4 gap-4 text-xs">
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-accent font-bold">WEEKS 1–3</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Linux & Web Defense</h4>
-                  <p className="text-muted-fg leading-relaxed">Shell navigation, HTTP internals, SQLi, XSS, SSRF, Burp Suite.</p>
+
+              <motion.div
+                className="relative"
+                initial="idle"
+                whileInView="run"
+                viewport={{ once: true, amount: 0.4 }}
+              >
+                {/* Pipeline rail (desktop) */}
+                <div className="hidden md:block absolute left-0 right-0 top-[7px] h-px bg-borderc" aria-hidden="true" />
+                <motion.div
+                  aria-hidden="true"
+                  className={`hidden md:block absolute left-0 right-0 top-[6px] h-[3px] origin-left ${isSec ? 'bg-accent' : 'bg-primary'}`}
+                  style={{ boxShadow: `0 0 10px ${isSec ? 'var(--accent)' : 'var(--primary)'}` }}
+                  variants={{
+                    idle: { scaleX: 0 },
+                    run: { scaleX: 1, transition: { duration: PIPELINE_DURATION, ease: 'linear', delay: 0.3 } },
+                  }}
+                />
+
+                <div className="grid md:grid-cols-4 gap-4 text-xs">
+                  {track.roadmap.map((stage, i) => {
+                    // Each stage lights up as the rail reaches it
+                    const at = 0.3 + (PIPELINE_DURATION * (i + 0.5)) / track.roadmap.length
+                    return (
+                      <div key={stage.weeks} className="relative md:pt-7">
+                        <motion.span
+                          aria-hidden="true"
+                          className={`hidden md:block absolute top-0 left-4 w-[15px] h-[15px] border-2 ${
+                            isSec ? 'border-accent' : 'border-primary'
+                          } bg-bg rotate-45`}
+                          variants={{
+                            idle: { scale: 0.6, opacity: 0.4 },
+                            run: {
+                              scale: [0.6, 1.4, 1],
+                              opacity: 1,
+                              backgroundColor: isSec ? 'var(--accent)' : 'var(--primary)',
+                              transition: { delay: at, duration: 0.4 },
+                            },
+                          }}
+                        />
+                        <motion.div
+                          className="group relative h-full p-4 bg-bg/60 border border-borderc/60"
+                          variants={{
+                            idle: { opacity: 0.25, y: 10 },
+                            run: { opacity: 1, y: 0, transition: { delay: at, duration: 0.45 } },
+                          }}
+                        >
+                          <CornerBrackets accent={isSec} />
+                          <span className={`${stageTone} font-bold`}>{stage.weeks}</span>
+                          <h4 className="font-bold text-fg mt-1 mb-2">{stage.t}</h4>
+                          <p className="text-muted-fg leading-relaxed">{stage.d}</p>
+                        </motion.div>
+                      </div>
+                    )
+                  })}
                 </div>
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-accent font-bold">WEEKS 4–6</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Crypto & Forensics</h4>
-                  <p className="text-muted-fg leading-relaxed">Classic & RSA attacks, Wireshark packet dumps, Volatility memory analysis.</p>
-                </div>
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-accent font-bold">WEEKS 7–9</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Assembly & Reversing</h4>
-                  <p className="text-muted-fg leading-relaxed">x86-64 calling conventions, Ghidra decompilation, cracking binaries.</p>
-                </div>
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-accent font-bold">WEEKS 10–12</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Binary Exploitation</h4>
-                  <p className="text-muted-fg leading-relaxed">Stack buffer overflows, shellcoding, ret2libc, DEP/ASLR bypass.</p>
-                </div>
-              </div>
-            </div>
+              </motion.div>
+            </motion.div>
           </motion.div>
-        ) : (
-          <motion.div
-            key="opensource"
-            initial={{ opacity: 0, y: 15 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4 }}
-            className="space-y-8"
-          >
-            <div className="grid md:grid-cols-3 gap-6 font-mono">
-              <div className="bg-card border border-borderc hover:border-accent/50 transition-colors p-6 rounded-sm">
-                <div className="text-accent text-xl font-bold mb-3">01 // Systems & Kernel</div>
-                <h3 className="font-bold text-fg text-base mb-2">Rust & Linux Subsystems</h3>
-                <p className="text-xs text-muted-fg leading-relaxed mb-4">
-                  Building device drivers, async network runtimes, memory-safe OS modules, and shipping upstream patches to Linux & Rust.
-                </p>
-                <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
-                  <div><strong>Languages:</strong> Rust, C, Modern C++20, eBPF</div>
-                  <div><strong>Targets:</strong> Linux Kernel, Tokio async, WebAssembly</div>
-                </div>
-              </div>
-
-              <div className="bg-card border border-borderc hover:border-accent/50 transition-colors p-6 rounded-sm">
-                <div className="text-accent text-xl font-bold mb-3">02 // Developer Tooling</div>
-                <h3 className="font-bold text-fg text-base mb-2">CLI & Security Scanners</h3>
-                <p className="text-xs text-muted-fg leading-relaxed mb-4">
-                  Creating open source frameworks (VulnScan, BruteForge, NullTrace) used by thousands of security practitioners worldwide.
-                </p>
-                <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
-                  <div><strong>Ecosystem:</strong> Go, Python, Clap CLI, Rayon</div>
-                  <div><strong>License:</strong> 100% Free & Open Source (MIT/Apache-2.0)</div>
-                </div>
-              </div>
-
-              <div className="bg-card border border-borderc hover:border-accent/50 transition-colors p-6 rounded-sm">
-                <div className="text-accent text-xl font-bold mb-3">03 // Distributed Infrastructure</div>
-                <h3 className="font-bold text-fg text-base mb-2">P2P & Cloud Native</h3>
-                <p className="text-xs text-muted-fg leading-relaxed mb-4">
-                  Architecting resilient microservices, decentralized storage over IPFS, container orchestration, and WebAssembly runtimes.
-                </p>
-                <div className="border-t border-borderc/60 pt-3 text-[11px] text-muted-fg space-y-1">
-                  <div><strong>Stack:</strong> Docker, Kubernetes, Libp2p, gRPC</div>
-                  <div><strong>Focus:</strong> Fault tolerance, consensus, distributed caching</div>
-                </div>
-              </div>
-            </div>
-
-            {/* Specialization Roadmap Details */}
-            <div className="bg-card/60 border border-borderc rounded-sm p-6 md:p-8 font-mono">
-              <h3 className="text-lg font-bold text-accent mb-4 flex items-center gap-2">
-                <span>//</span> 12-Week Cadet Roadmap (Systems & FOSS)
-              </h3>
-              <div className="grid md:grid-cols-4 gap-4 text-xs">
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-primary font-bold">WEEKS 1–3</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Git & C Fundamentals</h4>
-                  <p className="text-muted-fg leading-relaxed">Git workflows, rebasing, pointers, memory models, POSIX APIs.</p>
-                </div>
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-primary font-bold">WEEKS 4–6</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Modern Rust</h4>
-                  <p className="text-muted-fg leading-relaxed">Borrow checker, ownership, lifetimes, cargo, safe concurrency.</p>
-                </div>
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-primary font-bold">WEEKS 7–9</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Network & Async</h4>
-                  <p className="text-muted-fg leading-relaxed">Tokio runtime, TCP/UDP sockets, writing high-throughput servers.</p>
-                </div>
-                <div className="p-4 bg-bg/60 border border-borderc/60 rounded">
-                  <span className="text-primary font-bold">WEEKS 10–12</span>
-                  <h4 className="font-bold text-fg mt-1 mb-2">Upstream Contributions</h4>
-                  <p className="text-muted-fg leading-relaxed">Contributing to large repos, RFC writing, review etiquette, kernel patches.</p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        </AnimatePresence>
 
         {/* Call to action */}
         <div className="mt-16 text-center border-t border-borderc pt-12">
@@ -225,7 +271,7 @@ export default function DomainsPage({ onJoinClick, theme = 'green' }: DomainsPag
               accentSoftColor={theme === 'blue' ? '#93c5fd' : '#80ff9f'}
               fillColor={theme === 'blue' ? '#051026' : '#041207'}
               labelColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
-              cornerRadius={24}
+              cornerRadius={0}
               sweepDuration={2.6}
               arcWidth={7}
               className={`!py-3.5 !px-8 font-mono text-sm font-bold transition-shadow cursor-pointer ${

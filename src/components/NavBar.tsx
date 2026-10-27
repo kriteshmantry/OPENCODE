@@ -72,14 +72,19 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
                 {item.isRoute ? (
                   <Link
                     to={item.to}
-                    className={`font-mono text-xs px-3 py-1.5 rounded-sm transition-all duration-200 flex items-center gap-1.5 ${
-                      active
-                        ? 'bg-primary/15 text-primary border border-primary/40 font-bold shadow-[0_0_12px_rgba(var(--primary-rgb),0.25)]'
-                        : 'text-muted-fg hover:text-fg hover:bg-card/60'
+                    className={`relative font-mono text-xs px-3 py-1.5 transition-colors duration-200 flex items-center gap-1.5 ${
+                      active ? 'text-primary font-bold' : 'text-muted-fg hover:text-fg hover:bg-card/60'
                     }`}
                   >
-                    {active && <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />}
-                    <span>{item.label}</span>
+                    {active && (
+                      <motion.span
+                        layoutId="nav-active"
+                        className="absolute inset-0 bg-primary/15 border border-primary/40 shadow-[0_0_12px_rgba(var(--primary-rgb),0.25)]"
+                        transition={{ type: 'spring', stiffness: 420, damping: 34 }}
+                      />
+                    )}
+                    {active && <span className="relative w-1.5 h-1.5 bg-primary animate-pulse" />}
+                    <span className="relative">{item.label}</span>
                   </Link>
                 ) : (
                   <a
@@ -120,7 +125,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
             aria-label="Switch theme"
           >
             {/* Dual color indicator pill */}
-            <div className="flex items-center gap-1 bg-bg/90 px-1.5 py-0.5 rounded-full border border-borderc/80">
+            <div className="flex items-center gap-1 bg-bg/90 px-1.5 py-0.5 border border-borderc/80">
               <span
                 className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   theme === 'green'
