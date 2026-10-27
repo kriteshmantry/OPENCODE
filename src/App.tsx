@@ -200,7 +200,7 @@ export default function App() {
           <Route path="/" element={<HomePage onJoinClick={() => setJoinModalOpen(true)} theme={theme} ready={!isLoading} />} />
           <Route path="/domains" element={<DomainsPage onJoinClick={() => setJoinModalOpen(true)} theme={theme} />} />
           <Route path="/events" element={<EventsPage />} />
-          <Route path="/team" element={<TeamPage />} />
+          <Route path="/team" element={<TeamPage onJoinClick={() => setJoinModalOpen(true)} />} />
           <Route path="/github" element={<GithubPage />} />
         </Routes>
       </main>
