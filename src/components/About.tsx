@@ -65,7 +65,7 @@ export default function About() {
 
         {/* Main story grid */}
         <div className="grid md:grid-cols-2 gap-16 items-start mb-20">
-          <motion.div initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }} variants={STORY}>
+          <motion.div className="min-w-0" initial="hidden" whileInView="show" viewport={{ once: true, amount: 0.25 }} variants={STORY}>
             <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-4">
               // NIT Rourkela Official Student Chapter
             </p>
@@ -112,7 +112,7 @@ export default function About() {
           </motion.div>
 
           {/* Philosophy Code Terminal */}
-          <div>
+          <div className="min-w-0">
             <Reveal delay={0.15}>
             <div
               className="border border-borderc overflow-hidden scanlines"

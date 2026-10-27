@@ -197,7 +197,7 @@ export default function App() {
 
       <main>
         <Routes>
-          <Route path="/" element={<HomePage onJoinClick={() => setJoinModalOpen(true)} theme={theme} />} />
+          <Route path="/" element={<HomePage onJoinClick={() => setJoinModalOpen(true)} theme={theme} ready={!isLoading} />} />
           <Route path="/domains" element={<DomainsPage onJoinClick={() => setJoinModalOpen(true)} theme={theme} />} />
           <Route path="/events" element={<EventsPage />} />
           <Route path="/team" element={<TeamPage />} />

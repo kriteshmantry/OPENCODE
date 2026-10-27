@@ -59,7 +59,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
           <div className="w-7 h-7 rounded-md border border-primary/40 bg-card/90 p-1 flex items-center justify-center shadow-[0_0_10px_rgba(var(--primary-rgb),0.25)] group-hover:border-primary transition-all">
             <OpenCodeLogo showText={false} className="w-full h-full" />
           </div>
-          <span className="text-muted-fg font-normal text-sm">&gt;_</span>
+          <span className="hidden sm:inline text-muted-fg font-normal text-sm">&gt;_</span>
           <span>OpenCode <span className="text-muted-fg font-normal text-xs md:text-sm">NITR</span></span>
         </Link>
 
@@ -112,7 +112,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
           >
             <span>🔍</span>
             <span className="hidden sm:inline">Search</span>
-            <span className="text-[10px] px-1.5 py-0.2 bg-muted rounded border border-borderc text-muted-fg">
+            <span className="hidden sm:inline text-[10px] px-1.5 py-0.2 bg-muted rounded border border-borderc text-muted-fg">
               Ctrl+K
             </span>
           </button>
@@ -143,7 +143,7 @@ export default function NavBar({ theme, onThemeToggle, onJoinClick, onOpenSearch
                 title="Cobalt Blue (#1C6DFD)"
               />
             </div>
-            <span className="font-bold text-[11px] tracking-wider uppercase text-fg group-hover:text-primary transition-colors">
+            <span className="hidden sm:inline font-bold text-[11px] tracking-wider uppercase text-fg group-hover:text-primary transition-colors">
               {theme === 'green' ? 'GREEN' : 'BLUE'}
             </span>
             <span className="text-[10px] text-muted-fg hidden sm:inline border-l border-borderc/80 pl-1.5 font-normal">

@@ -1,382 +1,444 @@
 import { useEffect, useRef, useState } from 'react'
-import { motion, useScroll, useTransform } from 'framer-motion'
+import { motion, useReducedMotion, useScroll, useTransform } from 'framer-motion'
 import { Link } from 'react-router-dom'
-import { TextReveal } from './ui/cascade-text'
 import { ShinyButton } from './ui/shiny-button'
 
 interface HeroProps {
   onJoinClick?: () => void
   theme?: 'green' | 'blue'
+  /** False while the boot screen still covers the page; the intro waits for it */
+  ready?: boolean
 }
 
-export default function Hero({ onJoinClick, theme = 'green' }: HeroProps) {
-  const sectionRef = useRef<HTMLElement>(null)
-  const canvasRef = useRef<HTMLCanvasElement>(null)
-  const [showContent, setShowContent] = useState(false)
-  const [titleText, setTitleText] = useState('')
-  const [glitchKey, setGlitchKey] = useState(0)
-  const animRef = useRef<number>(0)
+/** Editor line height in px; the gutter, cursor line and status bar all share it */
+const LINE = 24
+const CHAR = 8.4
 
-  // Scrolling away pulls the title up and out while the network drifts slower behind it
-  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
-  const contentY = useTransform(scrollYProgress, [0, 1], [0, -140])
-  const contentOpacity = useTransform(scrollYProgress, [0, 0.7], [1, 0])
-  const canvasY = useTransform(scrollYProgress, [0, 1], [0, 90])
+// The kind of code the club actually writes, scrolling behind the wordmark
+const SOURCE = `// opencode/core/src/lib.rs
+pub mod kernel;
+pub mod exploit;
+use std::sync::{Arc, Mutex};
 
-  // Looping Typewriter effect cycling through: OPENCODE -> OPEN SOURCE -> CYBERSEC
+#[derive(Debug, Clone)]
+pub struct Member { handle: String, track: Track, commits: u64 }
+
+impl Member {
+    pub fn ship(&mut self, patch: Patch) -> Result<Merged, Review> {
+        patch.sign_off(&self.handle)?.send_upstream()
+    }
+}
+
+/* drivers/net/opencode_nic.c */
+static int oc_probe(struct pci_dev *pdev, const struct pci_device_id *id)
+{
+    int err = pci_enable_device(pdev);
+    if (err)
+        return dev_err_probe(&pdev->dev, err, "enable failed\\n");
+    return 0;
+}
+
+# exploit/ret2libc.py
+from pwn import *
+elf  = ELF("./vuln"); libc = ELF("./libc.so.6")
+rop  = ROP(elf)
+rop.call("puts", [elf.got["puts"]])
+payload = flat({ 72: rop.chain() })
+io.sendlineafter(b"> ", payload)
+
+SEC("tracepoint/syscalls/sys_enter_execve")
+int trace_execve(struct trace_event_raw_sys_enter *ctx) {
+    bpf_printk("exec by pid %d\\n", bpf_get_current_pid_tgid() >> 32);
+    return 0;
+}
+
+$ git clone https://github.com/OpencodeNIT-R/vulnscan.git
+$ git checkout -b fix/heap-overflow
+$ git commit -s -m "mm: bound check before memcpy in parser"
+$ git push origin fix/heap-overflow
+
+fn verify(proof: &Proof, vk: &VerifyingKey) -> bool {
+    pairing(proof.a, proof.b) == pairing(vk.alpha, vk.beta) * pairing(proof.c, vk.delta)
+}
+
+flag = bytes(a ^ b for a, b in zip(cipher, key))   # FLAG{0p3n_th3_c0d3}
+`
+
+const TICKER = [
+  '200+ MEMBERS',
+  '12 OPEN-SOURCE TOOLS',
+  '148 UPSTREAM PRs',
+  'RUST',
+  'LINUX KERNEL',
+  'eBPF',
+  'REVERSE ENGINEERING',
+  'CTF',
+  'APPLIED CRYPTOGRAPHY',
+  'DISTRIBUTED SYSTEMS',
+  'MIT LICENSED',
+  'EST. 2019',
+]
+
+const GLYPHS = '!<>-_\\/[]{}—=+*^?#01ABCDEFX$%&'
+
+/**
+ * Letters churn through glyphs and settle left to right, as if the word is
+ * being decompiled. Hovering the word runs it again.
+ */
+function ScrambleWord({ text, run, delay = 0, className, style }: {
+  text: string
+  run: boolean
+  delay?: number
+  className?: string
+  style?: React.CSSProperties
+}) {
+  const reduced = useReducedMotion()
+  const [shown, setShown] = useState(() =>
+    reduced ? text : text.replace(/./g, () => GLYPHS[Math.floor(Math.random() * GLYPHS.length)]),
+  )
+  const timer = useRef<ReturnType<typeof setInterval> | null>(null)
+
+  const scramble = (startDelay: number) => {
+    if (reduced) return
+    if (timer.current) clearInterval(timer.current)
+    let frame = -Math.round(startDelay / 30)
+    timer.current = setInterval(() => {
+      frame++
+      if (frame < 0) return
+      setShown(
+        text
+          .split('')
+          .map((ch, i) => (frame > 6 + i * 3 ? ch : GLYPHS[Math.floor(Math.random() * GLYPHS.length)]))
+          .join(''),
+      )
+      if (frame > 6 + text.length * 3) {
+        clearInterval(timer.current!)
+        timer.current = null
+        setShown(text)
+      }
+    }, 30)
+  }
+
   useEffect(() => {
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    if (prefersReduced) {
-      setTitleText('OPENCODE')
-      setShowContent(true)
-      return
-    }
-
-    const PHRASES = ['OPENCODE', 'OPENSOURCE', 'CYBERSEC']
-    let isMounted = true
-    let timeoutId: ReturnType<typeof setTimeout>
-    let phraseIndex = 0
-    let charIndex = 0
-    let isDeleting = false
-
-    function tick() {
-      if (!isMounted) return
-
-      const currentTarget = PHRASES[phraseIndex]
-
-      if (!isDeleting) {
-        // Typing forward
-        charIndex++
-        setTitleText(currentTarget.slice(0, charIndex))
-
-        if (charIndex === currentTarget.length) {
-          setShowContent(true)
-          setGlitchKey(k => k + 1)
-          // Hold for 1.5s when word is completely typed
-          isDeleting = true
-          timeoutId = setTimeout(tick, 1500)
-          return
-        }
-        timeoutId = setTimeout(tick, 100)
-      } else {
-        // Backspacing smoothly
-        charIndex--
-        setTitleText(currentTarget.slice(0, charIndex))
-
-        if (charIndex === 0) {
-          // Switch to next phrase in loop
-          isDeleting = false
-          phraseIndex = (phraseIndex + 1) % PHRASES.length
-          timeoutId = setTimeout(tick, 350)
-          return
-        }
-        timeoutId = setTimeout(tick, 50)
-      }
-    }
-
-    timeoutId = setTimeout(tick, 200)
-
+    if (run) scramble(delay)
     return () => {
-      isMounted = false
-      clearTimeout(timeoutId)
+      if (timer.current) clearInterval(timer.current)
     }
-  }, [])
-
-  // Interactive particle network canvas
-  useEffect(() => {
-    const canvas = canvasRef.current
-    if (!canvas) return
-
-    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches
-    const ctx = canvas.getContext('2d')
-    if (!ctx) return
-
-    let width = 0
-    let height = 0
-    let nodes: Node[] = []
-    let mouseX = -9999
-    let mouseY = -9999
-
-    interface Node {
-      x: number
-      y: number
-      vx: number
-      vy: number
-      radius: number
-      color: string
-    }
-
-    function resize() {
-      if (!canvas) return
-      width = canvas.width = canvas.offsetWidth
-      height = canvas.height = canvas.offsetHeight
-      initNodes()
-    }
-
-    function initNodes() {
-      const count = Math.min(Math.floor((width * height) / 12000), 70)
-      nodes = []
-      const colors =
-        theme === 'blue'
-          ? ['#1C6DFD', '#38bdf8', '#60a5fa', '#00d4ff', '#93c5fd']
-          : ['#00ff41', '#00d4ff', '#39ff14', '#00ffaa']
-      for (let i = 0; i < count; i++) {
-        nodes.push({
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.4,
-          vy: (Math.random() - 0.5) * 0.4,
-          radius: Math.random() * 1.5 + 1,
-          color: colors[Math.floor(Math.random() * colors.length)],
-        })
-      }
-    }
-
-    function draw() {
-      if (!ctx || !canvas) return
-      ctx.clearRect(0, 0, width, height)
-
-      if (prefersReduced) return
-
-      // Draw connections
-      const maxDist = 120
-      const linkRgb = theme === 'blue' ? '28, 109, 253' : '0, 255, 65'
-      for (let i = 0; i < nodes.length; i++) {
-        for (let j = i + 1; j < nodes.length; j++) {
-          const dx = nodes[i].x - nodes[j].x
-          const dy = nodes[i].y - nodes[j].y
-          const dist = Math.sqrt(dx * dx + dy * dy)
-          if (dist < maxDist) {
-            const alpha = (1 - dist / maxDist) * 0.2
-            ctx.strokeStyle = `rgba(${linkRgb}, ${alpha})`
-            ctx.lineWidth = 0.6
-            ctx.beginPath()
-            ctx.moveTo(nodes[i].x, nodes[i].y)
-            ctx.lineTo(nodes[j].x, nodes[j].y)
-            ctx.stroke()
-          }
-        }
-      }
-
-      // Draw nodes
-      for (const node of nodes) {
-        node.x += node.vx
-        node.y += node.vy
-
-        if (node.x < 0 || node.x > width) node.vx *= -1
-        if (node.y < 0 || node.y > height) node.vy *= -1
-
-        // Mouse repulse
-        const mdx = node.x - mouseX
-        const mdy = node.y - mouseY
-        const mdist = Math.sqrt(mdx * mdx + mdy * mdy)
-        if (mdist < 100) {
-          node.x += (mdx / mdist) * 1.5
-          node.y += (mdy / mdist) * 1.5
-        }
-
-        ctx.fillStyle = node.color
-        ctx.beginPath()
-        ctx.arc(node.x, node.y, node.radius, 0, Math.PI * 2)
-        ctx.fill()
-      }
-
-      animRef.current = requestAnimationFrame(draw)
-    }
-
-    const ro = new ResizeObserver(() => resize())
-    ro.observe(canvas)
-    resize()
-    draw()
-
-    const handleMouseMove = (e: MouseEvent) => {
-      const rect = canvas.getBoundingClientRect()
-      mouseX = e.clientX - rect.left
-      mouseY = e.clientY - rect.top
-    }
-
-    window.addEventListener('mousemove', handleMouseMove, { passive: true })
-
-    return () => {
-      cancelAnimationFrame(animRef.current)
-      ro.disconnect()
-      window.removeEventListener('mousemove', handleMouseMove)
-    }
-  }, [theme])
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [run])
 
   return (
-    <section ref={sectionRef} className="relative min-h-[92vh] flex flex-col items-center justify-center overflow-hidden grid-bg pt-20 pb-16">
-      {/* Particle network background */}
-      <motion.canvas
-        ref={canvasRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ opacity: 0.65, y: canvasY }}
-        aria-hidden="true"
-      />
+    <span className={className} style={style} onMouseEnter={() => scramble(0)}>
+      {shown}
+    </span>
+  )
+}
 
-      {/* Vignette */}
-      <div
-        className="absolute inset-0 pointer-events-none"
-        style={{
-          background: 'radial-gradient(ellipse 80% 60% at 50% 50%, transparent 35%, var(--bg) 100%)',
-        }}
-        aria-hidden="true"
-      />
+export default function Hero({ onJoinClick, theme = 'green', ready = true }: HeroProps) {
+  const reduced = useReducedMotion()
+  const sectionRef = useRef<HTMLElement>(null)
+  const bodyRef = useRef<HTMLDivElement>(null)
+  const cursorLineRef = useRef<HTMLDivElement>(null)
+  const gutterRef = useRef<HTMLDivElement>(null)
+  const lnColRef = useRef<HTMLSpanElement>(null)
+  const [opened, setOpened] = useState(false)
+  const [settled, setSettled] = useState(false)
 
-      <HeroHud show={showContent} />
+  // Intro: braces appear shut, then part to let the name out
+  useEffect(() => {
+    if (!ready) return
+    if (reduced) {
+      setOpened(true)
+      setSettled(true)
+      return
+    }
+    const a = setTimeout(() => setOpened(true), 650)
+    const b = setTimeout(() => setSettled(true), 1500)
+    return () => {
+      clearTimeout(a)
+      clearTimeout(b)
+    }
+  }, [ready, reduced])
 
-      {/* Main Hero Content */}
+  // Scrolling away lifts the wordmark out while the code wall stays put
+  const { scrollYProgress } = useScroll({ target: sectionRef, offset: ['start start', 'end start'] })
+  const contentY = useTransform(scrollYProgress, [0, 1], [0, -160])
+  const contentOpacity = useTransform(scrollYProgress, [0, 0.65], [1, 0])
+
+  // Pointer drives the spotlight, the editor's current line and the Ln/Col readout.
+  // Written straight to the DOM so moving the mouse never re-renders the hero.
+  const handlePointer = (e: React.PointerEvent) => {
+    const section = sectionRef.current
+    const body = bodyRef.current
+    if (!section || !body) return
+    const s = section.getBoundingClientRect()
+    section.style.setProperty('--mx', `${e.clientX - s.left}px`)
+    section.style.setProperty('--my', `${e.clientY - s.top}px`)
+
+    const b = body.getBoundingClientRect()
+    const y = e.clientY - b.top
+    if (y < 0 || y > b.height) return
+    const line = Math.floor(y / LINE)
+    const col = Math.max(1, Math.floor((e.clientX - b.left) / CHAR) + 1)
+    if (cursorLineRef.current) cursorLineRef.current.style.transform = `translateY(${line * LINE}px)`
+    if (gutterRef.current) {
+      gutterRef.current.querySelector('.is-current')?.classList.remove('is-current', 'text-primary')
+      gutterRef.current.children[line]?.classList.add('is-current', 'text-primary')
+    }
+    if (lnColRef.current) lnColRef.current.textContent = `Ln ${line + 1}, Col ${col}`
+  }
+
+  const isBlue = theme === 'blue'
+  const wordSize = 'text-[clamp(2.6rem,11.5vw,10rem)]'
+
+  return (
+    <section
+      ref={sectionRef}
+      onPointerMove={handlePointer}
+      className="relative min-h-[100svh] flex flex-col overflow-hidden bg-bg pt-16"
+      style={{ '--mx': '50%', '--my': '45%' } as React.CSSProperties}
+    >
+      <style>{`
+        @keyframes code-scroll { to { transform: translateY(-50%); } }
+        @keyframes ticker-run { to { transform: translateX(-50%); } }
+        .code-scroll { animation: code-scroll 90s linear infinite; }
+        .ticker-run { animation: ticker-run 40s linear infinite; }
+        .hero-spotlight {
+          -webkit-mask-image: radial-gradient(circle 240px at var(--mx) var(--my), #000 0%, rgba(0,0,0,.35) 45%, transparent 75%);
+                  mask-image: radial-gradient(circle 240px at var(--mx) var(--my), #000 0%, rgba(0,0,0,.35) 45%, transparent 75%);
+        }
+        @media (prefers-reduced-motion: reduce) {
+          .code-scroll, .ticker-run { animation: none; }
+        }
+      `}</style>
+
+      {/* ── Code wall: dim everywhere, lit where the pointer looks ── */}
+      <div className="absolute inset-0 pointer-events-none select-none" aria-hidden="true">
+        <CodeLayer className="text-muted-fg/35" />
+        <div className="absolute inset-0 hero-spotlight">
+          <CodeLayer className="text-primary/70" />
+        </div>
+        <div
+          className="absolute inset-0"
+          style={{
+            background:
+              'radial-gradient(ellipse 70% 50% at 50% 50%, var(--bg) 25%, transparent 80%), linear-gradient(to bottom, var(--bg) 0%, transparent 18%, transparent 80%, var(--bg) 100%)',
+          }}
+        />
+      </div>
+
+      {/* ── Editor tab bar ── */}
       <motion.div
-        className="relative z-10 w-full max-w-4xl mx-auto px-6 text-center"
-        style={{ y: contentY, opacity: contentOpacity }}
+        initial={{ opacity: 0, y: -8 }}
+        animate={ready ? { opacity: 1, y: 0 } : {}}
+        transition={{ duration: 0.4 }}
+        className="relative z-10 flex items-stretch h-9 border-y border-borderc bg-card/80 backdrop-blur-sm font-mono text-[11px]"
       >
-        {/* Sub-badge */}
-        <motion.div
-          initial={{ opacity: 0, y: -10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5 }}
-          className="inline-flex items-center gap-2 px-3 py-1 mb-8 border border-primary/30 bg-primary/10 font-mono text-xs text-primary"
-        >
-          <span className="w-2 h-2 bg-primary animate-pulse" />
-          <span>National Institute of Technology, Rourkela</span>
-        </motion.div>
-
-        {/* Typewriter Title */}
-        <h1 className="font-mono text-6xl md:text-8xl lg:text-9xl font-black text-primary tracking-tight mb-6 glow-text min-h-[1.15em] flex items-center justify-center select-none">
-          <span key={glitchKey} className={glitchKey ? 'glitch-once' : undefined}>
-            {titleText}
-          </span>
-          <span className="cursor-blink text-primary ml-1">_</span>
-        </h1>
-
-        {/* Subtitle and CTAs revealed on completion */}
-        <motion.div
-          initial={{ opacity: 0, y: 15 }}
-          animate={showContent ? { opacity: 1, y: 0 } : { opacity: 0, y: 15 }}
-          transition={{ duration: 0.6, ease: 'easeOut' }}
-        >
-          <div className="font-mono text-muted-fg text-base md:text-xl mb-10 max-w-3xl mx-auto leading-relaxed flex flex-wrap items-center justify-center gap-x-2 gap-y-1">
-            <span className="text-accent font-bold">&gt;</span>
-            <TextReveal
-              as="span"
-              text="Open Source & Cybersecurity Club."
-              fontSize="1.15rem"
-              hoverColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
-              className="normal-case font-mono font-medium"
-              staggerDelay={20}
-              duration={260}
-            />
-            <TextReveal
-              as="span"
-              text="Systems hackers, kernel contributors, CTF finalists, and researchers."
-              fontSize="1.05rem"
-              hoverColor="#00d4ff"
-              className="normal-case font-mono font-normal opacity-90"
-              staggerDelay={12}
-              duration={240}
-            />
-          </div>
-
-          {/* CTAs */}
-          <div className="flex flex-col items-center justify-center gap-3.5 relative z-10">
-            {/* Primary Join Button */}
-            <ShinyButton
-              label="JOIN OPENCODE"
-              onClick={onJoinClick}
-              accentColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
-              accentSoftColor={theme === 'blue' ? '#93c5fd' : '#80ff9f'}
-              fillColor={theme === 'blue' ? '#051026' : '#041207'}
-              labelColor={theme === 'blue' ? '#1C6DFD' : '#00ff41'}
-              cornerRadius={0}
-              sweepDuration={2.6}
-              arcWidth={7}
-              className={`!py-3 !px-8 font-mono text-sm font-bold transition-shadow cursor-pointer select-none ${
-                theme === 'blue'
-                  ? 'shadow-[0_0_20px_rgba(28,109,253,0.3)] hover:shadow-[0_0_35px_rgba(28,109,253,0.55)]'
-                  : 'shadow-[0_0_20px_rgba(0,255,65,0.22)] hover:shadow-[0_0_35px_rgba(0,255,65,0.45)]'
-              }`}
-            />
-
-            {/* Secondary Buttons Row */}
-            <div className="flex flex-wrap items-center justify-center gap-3.5">
-              <motion.a
-                href="#domains"
-                whileHover={{ scale: 1.04 }}
-                whileTap={{ scale: 0.96 }}
-                className="px-7 py-3.5 font-mono text-sm border border-primary/50 text-primary bg-primary/10 hover:bg-primary/20 hover:border-primary transition-all rounded-sm font-bold shadow-[0_0_15px_rgba(0,255,65,0.18)] hover:shadow-[0_0_25px_rgba(0,255,65,0.35)] flex items-center gap-2 cursor-pointer"
-              >
-                <span className="opacity-70">&gt;</span>
-                <span>explore domains</span>
-              </motion.a>
-              <Link to="/github">
-                <motion.div
-                  whileHover={{ scale: 1.04 }}
-                  whileTap={{ scale: 0.96 }}
-                  className="px-6 py-3.5 font-mono text-sm border border-primary/50 text-primary bg-primary/10 hover:bg-primary/20 hover:border-primary transition-all rounded-sm font-bold shadow-[0_0_15px_rgba(0,255,65,0.18)] hover:shadow-[0_0_25px_rgba(0,255,65,0.35)] flex items-center gap-2 cursor-pointer"
-                >
-                  <GithubIcon />
-                  <span>github org &rarr;</span>
-                </motion.div>
-              </Link>
-            </div>
-          </div>
-        </motion.div>
+        <div className="flex items-center gap-2 px-4 border-r border-borderc border-t-2 border-t-primary bg-bg text-fg">
+          <span className="text-warning">◆</span> opencode.rs
+          <span className="text-muted-fg ml-1">×</span>
+        </div>
+        <div className="hidden sm:flex items-center px-4 border-r border-borderc text-muted-fg">README.md</div>
+        <div className="hidden md:flex items-center px-4 border-r border-borderc text-muted-fg">LICENSE</div>
+        <div className="ml-auto hidden lg:flex items-center gap-4 px-4 text-muted-fg tracking-widest">
+          <span>NIT ROURKELA</span>
+          <span className="text-primary/70">22.2532°N 84.9010°E</span>
+        </div>
       </motion.div>
 
-      {/* Scroll indicator */}
-      {showContent && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.8 }}
-          className="absolute bottom-5 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1.5 pointer-events-none hidden sm:flex"
+      {/* ── Editor body ── */}
+      <div ref={bodyRef} className="relative z-10 flex-1 flex">
+        {/* Current line highlight */}
+        <div
+          ref={cursorLineRef}
+          className="absolute left-0 right-0 top-0 h-6 bg-primary/[0.04] border-y border-primary/10 pointer-events-none transition-transform duration-75"
+          aria-hidden="true"
+        />
+
+        {/* Line-number gutter */}
+        <div
+          ref={gutterRef}
+          className="hidden sm:block absolute top-0 bottom-0 left-0 w-12 border-r border-borderc bg-bg/60 font-mono text-[11px] text-muted-fg/50 text-right pr-3 overflow-hidden select-none"
+          aria-hidden="true"
         >
-          <span className="font-mono text-[10px] text-muted-fg uppercase tracking-widest">scroll</span>
-          <div className="w-4 h-7 border border-muted-fg/40 flex items-start justify-center pt-1">
-            <div className="w-1 h-1.5 bg-muted-fg/60 scroll-dot" />
-          </div>
+          {Array.from({ length: 60 }, (_, i) => (
+            <div key={i} className="h-6 leading-6 transition-colors">
+              {i + 1}
+            </div>
+          ))}
+        </div>
+
+        {/* Centrepiece */}
+        <motion.div
+          className="flex-1 flex flex-col items-center justify-center px-5 sm:pl-16 py-10 text-center"
+          style={{ y: contentY, opacity: contentOpacity }}
+        >
+          <motion.p
+            initial={{ opacity: 0 }}
+            animate={settled ? { opacity: 1 } : {}}
+            transition={{ duration: 0.5 }}
+            className="font-mono text-[11px] sm:text-xs text-muted-fg tracking-[0.25em] uppercase mb-6"
+          >
+            <span className="text-accent">//</span> open source &amp; cybersecurity club · est. 2019
+          </motion.p>
+
+          {/* Wordmark: a code block that opens */}
+          <h1 className={`font-mono font-black leading-none tracking-tight ${wordSize} flex items-center justify-center select-none`}>
+            <span className="sr-only">OpenCode</span>
+            <motion.span
+              layout
+              aria-hidden="true"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={ready ? { opacity: 1, scale: 1 } : {}}
+              transition={{ layout: { duration: 0.8, ease: [0.7, 0, 0.2, 1] }, duration: 0.4 }}
+              className="font-light text-accent"
+            >
+              {'{'}
+            </motion.span>
+
+            {opened && (
+              <motion.span
+                aria-hidden="true"
+                initial={reduced ? false : { clipPath: 'inset(0 50% 0 50%)' }}
+                animate={{ clipPath: 'inset(0 0% 0 0%)' }}
+                transition={{ duration: 0.8, ease: [0.7, 0, 0.2, 1] }}
+                className="flex px-[0.08em]"
+              >
+                <ScrambleWord
+                  text="OPEN"
+                  run={opened}
+                  delay={150}
+                  className="text-transparent cursor-default"
+                  style={{ WebkitTextStroke: `clamp(1px, 0.25vw, 2.5px) var(--primary)` }}
+                />
+                <ScrambleWord
+                  text="CODE"
+                  run={opened}
+                  delay={350}
+                  className={`text-primary cursor-default ${settled ? 'glow-text' : ''}`}
+                />
+              </motion.span>
+            )}
+
+            <motion.span
+              layout
+              aria-hidden="true"
+              initial={{ opacity: 0, scale: 0.6 }}
+              animate={ready ? { opacity: 1, scale: 1 } : {}}
+              transition={{ layout: { duration: 0.8, ease: [0.7, 0, 0.2, 1] }, duration: 0.4 }}
+              className="font-light text-accent"
+            >
+              {'}'}
+            </motion.span>
+          </h1>
+
+          {/* Underline rule that extends from the centre once the block is open */}
+          <motion.div
+            aria-hidden="true"
+            initial={{ scaleX: 0 }}
+            animate={settled ? { scaleX: 1 } : {}}
+            transition={{ duration: 0.7, ease: [0.7, 0, 0.2, 1] }}
+            className="h-px w-full max-w-3xl mt-6 mb-8 bg-gradient-to-r from-transparent via-primary/60 to-transparent"
+          />
+
+          <motion.div
+            initial="hidden"
+            animate={settled ? 'show' : 'hidden'}
+            variants={{ hidden: {}, show: { transition: { staggerChildren: 0.12 } } }}
+            className="flex flex-col items-center"
+          >
+            <motion.p
+              variants={RISE}
+              className="font-mono text-sm md:text-lg text-fg max-w-2xl leading-relaxed"
+            >
+              We read the source. We write the patch.{' '}
+              <span className="text-primary">We break it before anyone else does.</span>
+            </motion.p>
+            <motion.p variants={RISE} className="font-mono text-xs md:text-sm text-muted-fg mt-3 mb-10">
+              Systems hackers, kernel contributors, CTF finalists, and researchers at NIT Rourkela.
+            </motion.p>
+
+            <motion.div variants={RISE} className="flex flex-col sm:flex-row items-center gap-3">
+              <ShinyButton
+                label="JOIN OPENCODE"
+                onClick={onJoinClick}
+                accentColor={isBlue ? '#1C6DFD' : '#00ff41'}
+                accentSoftColor={isBlue ? '#93c5fd' : '#80ff9f'}
+                fillColor={isBlue ? '#051026' : '#041207'}
+                labelColor={isBlue ? '#1C6DFD' : '#00ff41'}
+                cornerRadius={0}
+                sweepDuration={2.6}
+                arcWidth={7}
+                className={`!py-3.5 !px-8 font-mono text-sm font-bold transition-shadow cursor-pointer select-none ${
+                  isBlue
+                    ? 'shadow-[0_0_20px_rgba(28,109,253,0.3)] hover:shadow-[0_0_35px_rgba(28,109,253,0.55)]'
+                    : 'shadow-[0_0_20px_rgba(0,255,65,0.22)] hover:shadow-[0_0_35px_rgba(0,255,65,0.45)]'
+                }`}
+              />
+              <a
+                href="#domains"
+                className="group relative overflow-hidden px-6 py-3.5 font-mono text-sm font-bold border border-primary/50 text-primary hover:text-bg transition-colors duration-300 flex items-center gap-2"
+              >
+                <span className="absolute inset-0 bg-primary origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                <span className="relative opacity-70">&gt;</span>
+                <span className="relative">explore domains</span>
+              </a>
+              <Link
+                to="/github"
+                className="group relative overflow-hidden px-6 py-3.5 font-mono text-sm font-bold border border-borderc text-fg hover:border-primary/50 hover:text-bg transition-colors duration-300 flex items-center gap-2"
+              >
+                <span className="absolute inset-0 bg-primary origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-300" />
+                <span className="relative"><GithubIcon /></span>
+                <span className="relative">git clone opencode</span>
+              </Link>
+            </motion.div>
+          </motion.div>
         </motion.div>
-      )}
+      </div>
+
+      {/* ── Ticker ── */}
+      <div className="relative z-10 border-t border-borderc bg-card/80 backdrop-blur-sm overflow-hidden h-9 flex items-center" aria-hidden="true">
+        <div className="ticker-run flex shrink-0 whitespace-nowrap font-mono text-[11px] tracking-[0.25em] text-muted-fg">
+          {[...TICKER, ...TICKER].map((t, i) => (
+            <span key={i} className="flex items-center">
+              <span className={i % 3 === 0 ? 'text-fg' : undefined}>{t}</span>
+              <span className="mx-6 text-primary">◆</span>
+            </span>
+          ))}
+        </div>
+      </div>
+
+      {/* ── Status bar ── */}
+      <div className="relative z-10 h-7 flex items-center justify-between bg-primary text-bg font-mono text-[11px] font-bold px-3">
+        <div className="flex items-center gap-4">
+          <span>⎇ main</span>
+          <span className="hidden sm:inline">✓ 0 problems</span>
+          <span className="hidden md:inline">● OPEN SOURCE</span>
+        </div>
+        <div className="flex items-center gap-4">
+          <span ref={lnColRef} className="tabular-nums">Ln 1, Col 1</span>
+          <span className="hidden sm:inline">UTF-8</span>
+          <span className="hidden sm:inline">MIT</span>
+        </div>
+      </div>
     </section>
   )
 }
 
-/**
- * Viewfinder frame around the hero: corner brackets draw outward from each
- * corner, then campus coordinates and a node status settle in.
- */
-function HeroHud({ show }: { show: boolean }) {
-  const corners = [
-    { pos: 'top-0 left-0', border: 'border-t-2 border-l-2', label: 'SYS://OPENCODE.NITR', labelPos: 'top-3 left-4' },
-    { pos: 'top-0 right-0', border: 'border-t-2 border-r-2', label: '22.2532°N  84.9010°E', labelPos: 'top-3 right-4 text-right' },
-    { pos: 'bottom-0 left-0', border: 'border-b-2 border-l-2', label: 'EST. 2019 // ROURKELA, ODISHA', labelPos: 'bottom-3 left-4' },
-    { pos: 'bottom-0 right-0', border: 'border-b-2 border-r-2', label: 'NODE STATUS: ONLINE', labelPos: 'bottom-3 right-4 text-right' },
-  ]
+const RISE = {
+  hidden: { opacity: 0, y: 14 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.5, ease: 'easeOut' as const } },
+}
 
+/** Two stacked copies of the source scrolling upward in a seamless loop */
+function CodeLayer({ className }: { className: string }) {
   return (
-    <div
-      className="absolute inset-x-6 md:inset-x-12 top-24 bottom-12 pointer-events-none hidden sm:block z-[5]"
-      aria-hidden="true"
-    >
-      {corners.map((c, i) => (
-        <div key={c.label}>
-          <motion.span
-            className={`absolute ${c.pos} ${c.border} border-primary/60`}
-            initial={{ width: 0, height: 0, opacity: 0 }}
-            animate={{ width: 28, height: 28, opacity: 1 }}
-            transition={{ duration: 0.5, delay: 0.3 + i * 0.08, ease: [0.2, 0.8, 0.2, 1] }}
-          />
-          <motion.span
-            className={`absolute ${c.labelPos} font-mono text-[10px] tracking-[0.2em] text-muted-fg/80 flex items-center gap-2`}
-            initial={{ opacity: 0, y: i < 2 ? -6 : 6 }}
-            animate={show ? { opacity: 1, y: 0 } : { opacity: 0, y: i < 2 ? -6 : 6 }}
-            transition={{ duration: 0.4, delay: 0.2 + i * 0.1 }}
-          >
-            {i === 3 && <span className="w-1.5 h-1.5 bg-primary cursor-blink" />}
-            {c.label}
-          </motion.span>
-        </div>
-      ))}
+    <div className="absolute inset-0 overflow-hidden">
+      <div className={`code-scroll font-mono text-[13px] leading-6 whitespace-pre pl-16 sm:pl-24 ${className}`}>
+        {SOURCE}
+        {'\n'}
+        {SOURCE}
+      </div>
     </div>
   )
 }
