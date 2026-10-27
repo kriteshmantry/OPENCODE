@@ -209,6 +209,7 @@ export default function App() {
         onOpenSecurityModal={() => setSecurityModalOpen(true)}
         onOpenTerminal={() => setTerminalOpen(true)}
         onOpenSearch={() => setCommandPaletteOpen(true)}
+        onJoinClick={() => setJoinModalOpen(true)}
       />
 
       {/* Modals & Overlays */}
