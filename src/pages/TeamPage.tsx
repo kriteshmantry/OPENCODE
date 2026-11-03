@@ -16,120 +16,54 @@ interface TeamPageProps {
   onJoinClick?: () => void
 }
 
-type Track = 'Faculty' | 'Cybersecurity' | 'Open Source'
-type Filter = 'all' | 'sec' | 'oss'
+type Tier = 'Faculty' | 'Executive' | 'Lead'
 
 interface Person {
   pid: number
-  handle: string
+  /** Unix-style user for the roster, named after the position */
+  user: string
   name: string
   role: string
-  track: Track
-  specialty: string
-  avatar: string
+  tier: Tier
+  avatar?: string
   github?: string
-  cves: number
+  specialty?: string
   clearance: number
   detail?: string
 }
 
+const TERM = '2026–27'
+const photo = (file: string) => `${import.meta.env.BASE_URL}team/${file}`
+
+// Executive body for 2026–27, in order of seniority, from the club's announcement
 const PEOPLE: Person[] = [
   {
     pid: 1,
-    handle: 'root',
+    user: 'root',
     name: 'Dr. S. K. Rath / Dr. B. Majhi',
     role: 'Faculty Advisor & Mentor',
-    track: 'Faculty',
+    tier: 'Faculty',
     specialty: 'Information Security, Cryptography, Distributed Systems',
     detail: 'Department of Computer Science & Engineering, National Institute of Technology, Rourkela',
-    avatar: 'https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=320&h=320&fit=crop&auto=format',
-    cves: 0,
     clearance: 5,
   },
-  {
-    pid: 101,
-    handle: 'r00t_k1ng',
-    name: 'Kira Osei',
-    role: 'Overall Club President & Red Team Lead',
-    track: 'Cybersecurity',
-    specialty: 'Binary exploitation, kernel pwn, CTF strategy',
-    avatar: 'https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=320&h=320&fit=crop&auto=format',
-    github: 'r00t_k1ng',
-    cves: 3,
-    clearance: 4,
-  },
-  {
-    pid: 102,
-    handle: 'n3tw0rk_b',
-    name: 'Ben Nakamura',
-    role: 'Vice President & Open Source Track Lead',
-    track: 'Open Source',
-    specialty: 'Rust compiler contributor, Linux networking, systems',
-    avatar: 'https://images.unsplash.com/photo-1531746020798-e6953c6e8e04?w=320&h=320&fit=crop&auto=format',
-    github: 'n3tw0rk_b',
-    cves: 0,
-    clearance: 4,
-  },
-  {
-    pid: 203,
-    handle: '0xAl1ce',
-    name: 'Alice Marchetti',
-    role: 'CTF Captain & Malware Analysis Lead',
-    track: 'Cybersecurity',
-    specialty: 'Reverse engineering, threat intel, Ghidra mastery',
-    avatar: 'https://images.unsplash.com/photo-1580489944761-15a19d654956?w=320&h=320&fit=crop&auto=format',
-    github: '0xAl1ce',
-    cves: 1,
-    clearance: 3,
-  },
-  {
-    pid: 204,
-    handle: 'cr4ckm3',
-    name: 'Dara Okonkwo',
-    role: 'Applied Cryptography & Privacy Lead',
-    track: 'Cybersecurity',
-    specialty: 'Custom cipher analysis, ZKP research, CTF top-10',
-    avatar: 'https://images.unsplash.com/photo-1607746882042-944635dfe10e?w=320&h=320&fit=crop&auto=format',
-    github: 'cr4ckm3',
-    cves: 2,
-    clearance: 3,
-  },
-  {
-    pid: 205,
-    handle: 'gh0stwr1tr',
-    name: 'Santiago Reyes',
-    role: 'Web Application Security Lead',
-    track: 'Cybersecurity',
-    specialty: 'SSRF, prototype pollution, auth bypass, bounty hunting',
-    avatar: 'https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=320&h=320&fit=crop&auto=format',
-    github: 'gh0stwr1tr',
-    cves: 0,
-    clearance: 3,
-  },
-  {
-    pid: 306,
-    handle: 'k3rn3l_d',
-    name: 'Yuki Tanaka',
-    role: 'Linux Subsystems & Drivers Lead',
-    track: 'Open Source',
-    specialty: 'Upstream Linux kernel contributor, eBPF telemetry, C',
-    avatar: 'https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=320&h=320&fit=crop&auto=format',
-    github: 'k3rn3l_d',
-    cves: 1,
-    clearance: 3,
-  },
+  { pid: 100, user: 'president', name: 'Abhijeet Biswal', role: 'President', tier: 'Executive', avatar: photo('abhijeet-biswal.avif'), clearance: 4 },
+  { pid: 101, user: 'vp', name: 'Manikanta', role: 'Vice President', tier: 'Executive', avatar: photo('manikanta.avif'), clearance: 4 },
+  { pid: 200, user: 'tech', name: 'Krish Agarwal', role: 'Tech Lead', tier: 'Lead', avatar: photo('krish-agarwal.avif'), clearance: 3 },
+  { pid: 201, user: 'secretary', name: 'Aishwary Jhunjhunwala', role: 'Secretary', tier: 'Lead', avatar: photo('aishwary-jhunjhunwala.avif'), clearance: 3 },
+  { pid: 202, user: 'design', name: 'Vani Mittal', role: 'Design Lead', tier: 'Lead', avatar: photo('vani-mittal.avif'), clearance: 3 },
 ]
 
 const CYCLE_MS = 5500
 
-const trackTone = (t: Track) =>
-  t === 'Cybersecurity'
-    ? { text: 'text-primary', bg: 'bg-primary', border: 'border-primary/60', color: 'var(--primary)', short: 'sec' }
-    : t === 'Open Source'
-      ? { text: 'text-accent', bg: 'bg-accent', border: 'border-accent/60', color: 'var(--accent)', short: 'oss' }
+const tierTone = (t: Tier) =>
+  t === 'Executive'
+    ? { text: 'text-primary', bg: 'bg-primary', border: 'border-primary/60', color: 'var(--primary)', short: 'exec' }
+    : t === 'Lead'
+      ? { text: 'text-accent', bg: 'bg-accent', border: 'border-accent/60', color: 'var(--accent)', short: 'lead' }
       : { text: 'text-warning', bg: 'bg-warning', border: 'border-warning/60', color: 'var(--warning)', short: 'root' }
 
-type Tone = ReturnType<typeof trackTone>
+type Tone = ReturnType<typeof tierTone>
 
 /** Stable hex string derived from text, used for the barcode and key fingerprint */
 function hashHex(s: string, len = 32) {
@@ -142,22 +76,17 @@ function hashHex(s: string, len = 32) {
   return out.slice(0, len)
 }
 
-const matches = (p: Person, f: Filter) =>
-  f === 'all' || p.track === 'Faculty' || (f === 'sec' ? p.track === 'Cybersecurity' : p.track === 'Open Source')
-
 /** Resolve `var(--x)` to its current value so canvas can paint with it */
 const cssColor = (c: string) =>
   c.startsWith('var(') ? getComputedStyle(document.documentElement).getPropertyValue(c.slice(4, -1)).trim() : c
 
 export default function TeamPage({ onJoinClick }: TeamPageProps) {
   const reduced = useReducedMotion()
-  const [filter, setFilter] = useState<Filter>('all')
   const [selected, setSelected] = useState(0)
   const [autoplay, setAutoplay] = useState(!reduced)
   const [direction, setDirection] = useState(1)
 
-  const visible = PEOPLE.map((p, i) => ({ p, i })).filter(({ p }) => matches(p, filter))
-  const totalCves = PEOPLE.reduce((n, p) => n + p.cves, 0)
+  const visible = PEOPLE.map((p, i) => ({ p, i }))
 
   const select = useCallback((i: number, byUser = true) => {
     setSelected(prev => {
@@ -175,12 +104,6 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
     },
     [visible, selected, select],
   )
-
-  // Keep the selection inside the filtered roster
-  useEffect(() => {
-    if (!matches(PEOPLE[selected], filter)) select(visible[0].i, false)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [filter])
 
   // Auto-cycle until the visitor takes over
   useEffect(() => {
@@ -221,40 +144,16 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
               delay={80}
             />
             <p className="font-mono text-muted-fg text-sm mt-3 max-w-2xl leading-relaxed">
-              Student maintainers, kernel patchers, CTF captains, and faculty mentors guiding the next generation of
-              engineers at NIT Rourkela.
+              The {TERM} executive body of OpenCode, NIT Rourkela, with the faculty mentors who guide the club.
             </p>
           </div>
 
-          <div className="font-mono self-start lg:self-auto">
-            <div className="text-[11px] text-muted-fg mb-2">
-              <span className="text-primary">$</span> ps aux --track
+          <div className="font-mono self-start lg:self-auto border border-borderc bg-card px-4 py-3">
+            <div className="text-[11px] text-muted-fg">
+              <span className="text-primary">$</span> cat /etc/opencode/exec-body
             </div>
-            <div className="flex border border-borderc p-1 bg-card">
-              {(
-                [
-                  { id: 'all', label: 'all', pill: 'bg-fg' },
-                  { id: 'sec', label: 'cybersecurity', pill: 'bg-primary' },
-                  { id: 'oss', label: 'open-source', pill: 'bg-accent' },
-                ] as const
-              ).map(tab => (
-                <button
-                  key={tab.id}
-                  onClick={() => setFilter(tab.id)}
-                  className={`relative px-3 sm:px-4 py-1.5 text-xs transition-colors cursor-pointer ${
-                    filter === tab.id ? 'text-bg font-bold' : 'text-muted-fg hover:text-fg'
-                  }`}
-                >
-                  {filter === tab.id && (
-                    <motion.span
-                      layoutId="team-track-pill"
-                      className={`absolute inset-0 ${tab.pill}`}
-                      transition={{ type: 'spring', stiffness: 380, damping: 32 }}
-                    />
-                  )}
-                  <span className="relative">{tab.label}</span>
-                </button>
-              ))}
+            <div className="mt-1 text-sm text-fg font-bold tracking-widest">
+              TERM <span className="text-primary">{TERM}</span>
             </div>
           </div>
         </div>
@@ -283,7 +182,7 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
 
             <AnimatePresence mode="wait" custom={direction} initial={false}>
               <Keycard
-                key={PEOPLE[selected].handle}
+                key={PEOPLE[selected].user}
                 person={PEOPLE[selected]}
                 direction={direction}
                 onFlip={() => setAutoplay(false)}
@@ -311,7 +210,7 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
                   <CountUp value={PEOPLE.length} className="text-fg font-bold" /> procs
                 </span>
                 <span>
-                  <CountUp value={totalCves} className="text-warning font-bold" /> CVEs
+                  term <span className="text-fg font-bold">{TERM}</span>
                 </span>
               </span>
             </div>
@@ -327,7 +226,7 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
               <AnimatePresence initial={false}>
                 {visible.map(({ p, i }, row) => (
                   <motion.li
-                    key={p.handle}
+                    key={p.user}
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: 'auto', transition: { duration: 0.3, delay: row * 0.03 } }}
                     exit={{ opacity: 0, height: 0, transition: { duration: 0.2 } }}
@@ -348,7 +247,7 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
                   <span className="relative text-muted-fg">????</span>
                   <span className="relative hidden sm:block text-primary">you</span>
                   <span className="relative text-fg truncate">
-                    ./join --track=<span className="text-primary">yours</span>
+                    ./join --role=<span className="text-primary">yours</span>
                     <span className="cursor-blink text-primary">_</span>
                   </span>
                   <span className="relative text-right text-warning">PENDING</span>
@@ -384,7 +283,7 @@ function RosterRow({
   autoplay: boolean
   onSelect: () => void
 }) {
-  const tone = trackTone(person.track)
+  const tone = tierTone(person.tier)
   return (
     <button
       onClick={onSelect}
@@ -402,7 +301,7 @@ function RosterRow({
       {/* Auto-scan countdown */}
       {active && autoplay && (
         <motion.span
-          key={person.handle}
+          key={person.user}
           className={`absolute left-0 bottom-0 h-px w-full origin-left ${tone.bg}`}
           initial={{ scaleX: 0 }}
           animate={{ scaleX: 1 }}
@@ -410,7 +309,7 @@ function RosterRow({
         />
       )}
       <span className={`tabular-nums ${active ? tone.text : 'text-muted-fg'}`}>{person.pid}</span>
-      <span className={`hidden sm:block truncate ${active ? 'text-fg' : 'text-muted-fg'}`}>@{person.handle}</span>
+      <span className={`hidden sm:block truncate ${active ? 'text-fg' : 'text-muted-fg'}`}>{person.user}</span>
       <span className="min-w-0">
         <span className={`block truncate ${active ? 'text-fg font-bold' : 'text-fg/80'}`}>{person.name}</span>
         <span className="block truncate text-[11px] text-muted-fg mt-0.5">{person.role}</span>
@@ -432,7 +331,7 @@ function RosterRow({
 function Keycard({ person, direction, onFlip }: { person: Person; direction: number; onFlip: () => void }) {
   const reduced = useReducedMotion()
   const [flipped, setFlipped] = useState(false)
-  const tone = trackTone(person.track)
+  const tone = tierTone(person.tier)
 
   const px = useMotionValue(0.5)
   const py = useMotionValue(0.5)
@@ -497,10 +396,10 @@ function Keycard({ person, direction, onFlip }: { person: Person; direction: num
 const FACE = 'absolute inset-0 border bg-card overflow-hidden [backface-visibility:hidden]'
 
 function CardFront({ person, tone }: { person: Person; tone: Tone }) {
-  const barcode = hashHex(person.handle, 40)
+  const barcode = hashHex(person.name, 40)
   return (
     <div className={`${FACE} ${tone.border} flex flex-col`} style={{ boxShadow: '0 20px 60px rgba(0,0,0,0.5)' }}>
-      {/* Track stripe */}
+      {/* Tier stripe */}
       <div className={`absolute left-0 top-0 bottom-0 w-1.5 ${tone.bg}`} />
       <div className="absolute inset-0 scanlines pointer-events-none" />
 
@@ -523,10 +422,10 @@ function CardFront({ person, tone }: { person: Person; tone: Tone }) {
 
       <div className="pl-5 pr-4 mt-4 font-mono flex-1">
         <ScrambleName text={person.name} className="block text-lg font-black text-fg leading-tight" />
-        <div className={`text-xs mt-1 ${tone.text}`}>@{person.handle}</div>
-        <div className="text-[11px] text-fg/75 mt-2 leading-snug line-clamp-2">{person.role}</div>
+        <div className={`text-xs font-bold mt-1.5 uppercase tracking-widest ${tone.text}`}>{person.role}</div>
         <div className="text-[10px] text-muted-fg mt-2 leading-snug line-clamp-2">
-          <span className={tone.text}>&gt;</span> {person.specialty}
+          <span className={tone.text}>&gt;</span>{' '}
+          {person.specialty ?? `OpenCode executive body · ${TERM}`}
         </div>
       </div>
 
@@ -535,7 +434,7 @@ function CardFront({ person, tone }: { person: Person; tone: Tone }) {
           <Clearance level={person.clearance} tone={tone} />
           <span className="text-[10px] text-muted-fg">PID {person.pid}</span>
         </div>
-        {/* Barcode derived from the handle */}
+        {/* Decorative barcode derived from the name */}
         <div className="mt-3 flex items-end gap-px h-7">
           {barcode.split('').map((c, i) => (
             <span
@@ -551,7 +450,7 @@ function CardFront({ person, tone }: { person: Person; tone: Tone }) {
 }
 
 function CardBack({ person, tone }: { person: Person; tone: Tone }) {
-  const fp = hashHex(person.name + person.handle, 40).toUpperCase().match(/.{4}/g)!
+  const fp = hashHex(person.name + person.user, 40).toUpperCase().match(/.{4}/g)!
   return (
     <div className={`${FACE} ${tone.border} [transform:rotateY(180deg)] flex flex-col font-mono`}>
       <div className={`absolute right-0 top-0 bottom-0 w-1.5 ${tone.bg}`} />
@@ -561,15 +460,13 @@ function CardBack({ person, tone }: { person: Person; tone: Tone }) {
 
       <div className="px-5 py-4 flex-1 space-y-3.5 text-xs">
         <Field label="ROLE">{person.role}</Field>
-        <Field label="SPECIALTY">{person.specialty}</Field>
+        {person.specialty && <Field label="SPECIALTY">{person.specialty}</Field>}
         {person.detail && <Field label="UNIT">{person.detail}</Field>}
         <div className="grid grid-cols-2 gap-3">
-          <Field label="TRACK">
-            <span className={tone.text}>{person.track}</span>
+          <Field label="TIER">
+            <span className={tone.text}>{person.tier}</span>
           </Field>
-          <Field label="CVEs">
-            <span className={person.cves ? 'text-warning font-bold' : 'text-muted-fg'}>{person.cves}</span>
-          </Field>
+          <Field label="TERM">{TERM}</Field>
         </div>
         <div>
           <div className="text-[10px] text-muted-fg tracking-widest mb-0.5">KEY FINGERPRINT</div>
@@ -648,7 +545,7 @@ function ScrambleName({ text, className }: { text: string; className?: string })
  * Photo that resolves from coarse blocks to full detail, like an image
  * decoding over a slow link. Shows initials if it cannot load.
  */
-function PixelPortrait({ src, name, color }: { src: string; name: string; color: string }) {
+function PixelPortrait({ src, name, color }: { src?: string; name: string; color: string }) {
   const ref = useRef<HTMLCanvasElement>(null)
   const reduced = useReducedMotion()
 
@@ -697,7 +594,7 @@ function PixelPortrait({ src, name, color }: { src: string; name: string; color:
     }
     img.onerror = () => !cancelled && drawInitials()
     drawInitials()
-    img.src = src
+    if (src) img.src = src
 
     return () => {
       cancelled = true
