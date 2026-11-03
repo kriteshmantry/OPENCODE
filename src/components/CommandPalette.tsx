@@ -125,9 +125,9 @@ export default function CommandPalette({
     },
     {
       id: 'nav-team',
-      title: 'Go to Core Team & Advisors Tab',
+      title: 'Go to Core Team Tab',
       category: 'Navigation',
-      subtitle: 'Faculty advisors, student leadership, CTF captains',
+      subtitle: '2026–27 executive body',
       action: () => {
         onClose()
         navigate('/team')

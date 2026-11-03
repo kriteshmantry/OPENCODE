@@ -16,7 +16,7 @@ interface TeamPageProps {
   onJoinClick?: () => void
 }
 
-type Tier = 'Faculty' | 'Executive' | 'Lead'
+type Tier = 'Executive' | 'Lead'
 
 interface Person {
   pid: number
@@ -29,7 +29,6 @@ interface Person {
   github?: string
   specialty?: string
   clearance: number
-  detail?: string
 }
 
 const TERM = '2026–27'
@@ -37,16 +36,6 @@ const photo = (file: string) => `${import.meta.env.BASE_URL}team/${file}`
 
 // Executive body for 2026–27, in order of seniority, from the club's announcement
 const PEOPLE: Person[] = [
-  {
-    pid: 1,
-    user: 'root',
-    name: 'Dr. S. K. Rath / Dr. B. Majhi',
-    role: 'Faculty Advisor & Mentor',
-    tier: 'Faculty',
-    specialty: 'Information Security, Cryptography, Distributed Systems',
-    detail: 'Department of Computer Science & Engineering, National Institute of Technology, Rourkela',
-    clearance: 5,
-  },
   { pid: 100, user: 'president', name: 'Abhijeet Biswal', role: 'President', tier: 'Executive', avatar: photo('abhijeet-biswal.avif'), clearance: 4 },
   { pid: 101, user: 'vp', name: 'Manikanta', role: 'Vice President', tier: 'Executive', avatar: photo('manikanta.avif'), clearance: 4 },
   { pid: 200, user: 'tech', name: 'Krish Agarwal', role: 'Tech Lead', tier: 'Lead', avatar: photo('krish-agarwal.avif'), clearance: 3 },
@@ -59,9 +48,7 @@ const CYCLE_MS = 5500
 const tierTone = (t: Tier) =>
   t === 'Executive'
     ? { text: 'text-primary', bg: 'bg-primary', border: 'border-primary/60', color: 'var(--primary)', short: 'exec' }
-    : t === 'Lead'
-      ? { text: 'text-accent', bg: 'bg-accent', border: 'border-accent/60', color: 'var(--accent)', short: 'lead' }
-      : { text: 'text-warning', bg: 'bg-warning', border: 'border-warning/60', color: 'var(--warning)', short: 'root' }
+    : { text: 'text-accent', bg: 'bg-accent', border: 'border-accent/60', color: 'var(--accent)', short: 'lead' }
 
 type Tone = ReturnType<typeof tierTone>
 
@@ -138,13 +125,13 @@ export default function TeamPage({ onJoinClick }: TeamPageProps) {
           <div>
             <p className="font-mono text-xs text-accent uppercase tracking-[0.2em] mb-3">// COMMAND HIERARCHY</p>
             <DecryptText
-              text="Core Team & Advisors."
+              text="Core Team."
               tag="h1"
               className="font-mono text-4xl md:text-5xl lg:text-6xl font-black text-fg tracking-tight"
               delay={80}
             />
             <p className="font-mono text-muted-fg text-sm mt-3 max-w-2xl leading-relaxed">
-              The {TERM} executive body of OpenCode, NIT Rourkela, with the faculty mentors who guide the club.
+              The {TERM} executive body of OpenCode, NIT Rourkela.
             </p>
           </div>
 
@@ -461,7 +448,6 @@ function CardBack({ person, tone }: { person: Person; tone: Tone }) {
       <div className="px-5 py-4 flex-1 space-y-3.5 text-xs">
         <Field label="ROLE">{person.role}</Field>
         {person.specialty && <Field label="SPECIALTY">{person.specialty}</Field>}
-        {person.detail && <Field label="UNIT">{person.detail}</Field>}
         <div className="grid grid-cols-2 gap-3">
           <Field label="TIER">
             <span className={tone.text}>{person.tier}</span>
